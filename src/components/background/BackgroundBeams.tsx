@@ -1,51 +1,14 @@
-"use client";
-
-import React from "react";
 import { motion } from "motion/react";
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { memo } from "react";
 
-function cn(...inputs: (string | undefined | null | false)[]) {
-  return twMerge(clsx(inputs));
+import { cn } from "../utils";
+
+interface BackgroundBeamsProps {
+  className?: string;
 }
 
-const GlassCard = React.memo(
-  ({ children, className }: { children: React.ReactNode; className?: string }) => {
-    return (
-      <div
-        className={cn(
-          "bg-black/40 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-amber-500/30",
-          className
-        )}
-      >
-        {children}
-      </div>
-    );
-  }
-);
-
-GlassCard.displayName = "GlassCard";
-
-const HeaderBackground = React.memo(
-  ({ children, className }: { children: React.ReactNode; className?: string }) => {
-    return (
-      <header
-        className={cn(
-          "flex flex-row items-center justify-between w-full bg-black/40 backdrop-blur-sm shadow-xl rounded-2xl px-4 py-2 border border-amber-500/30",
-          className
-        )}
-      >
-        {children}
-      </header>
-    );
-  }
-);
-
-HeaderBackground.displayName = "HeaderBackground";
-
-// Animated background beams component
-const BackgroundBeams = React.memo(
-  ({ className }: { className?: string }) => {
+const BackgroundBeams = memo(
+  ({ className }: BackgroundBeamsProps) => {
     const paths = [
       "M-380 -189C-380 -189 -312 216 152 343C616 470 684 875 684 875",
       "M-373 -197C-373 -197 -305 208 159 335C623 462 691 867 691 867",
@@ -102,12 +65,12 @@ const BackgroundBeams = React.memo(
     return (
       <div
         className={cn(
-          "absolute inset-0 flex h-full w-full items-center justify-center bg-neutral-950 [mask-repeat:no-repeat] [mask-size:40px]",
+          "fixed inset-0 flex h-full w-full items-center justify-center bg-neutral-950 [mask-repeat:no-repeat] [mask-size:40px] z-1",
           className
         )}
       >
         <svg
-          className="pointer-events-none absolute z-0 h-full w-full"
+          className="absolute z-0 w-full h-full pointer-events-none"
           width="100%"
           height="100%"
           viewBox="0 0 696 316"
@@ -189,47 +152,4 @@ const BackgroundBeams = React.memo(
 
 BackgroundBeams.displayName = "BackgroundBeams";
 
-// Background theme configuration
-export const backgroundTheme = {
-  colors: {
-    primary: "#18CCFC",
-    secondary: "#6344F5",
-    accent: "#AE48FF",
-    neutral: "#d4d4d4",
-    amber: {
-      amber400: "#fbbf24",
-      amber500: "#f59e0b",
-      amber900: "#78350f",
-    },
-  },
-  gradients: {
-    text: "bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent",
-    glass: "bg-black/40 backdrop-blur-sm",
-    border: "border-amber-500/30",
-  },
-  animations: {
-    hover: "transition-all duration-300",
-    scale: "hover:scale-110",
-    glow: "hover:drop-shadow-lg",
-  },
-} as const;
-
-// Background utility functions
-const backgroundUtils = {
-  // Generate random animation delay
-  getRandomDelay: () => Math.random() * 10,
-
-  // Generate random animation duration
-  getRandomDuration: () => Math.random() * 10 + 10,
-
-  // Generate random gradient end position
-  getRandomGradientEnd: () => 93 + Math.random() * 8,
-
-  // Create glass morphism styles
-  getGlassStyles: (opacity = "40") => `bg-black/${opacity} backdrop-blur-sm`,
-
-  // Create border styles
-  getBorderStyles: (color = "amber", opacity = "30") => `border-${color}-500/${opacity}`,
-} as const; 
-
-export { cn, GlassCard, HeaderBackground, BackgroundBeams, backgroundUtils}
+export default BackgroundBeams; 

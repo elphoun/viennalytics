@@ -1,1 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Asul:wght@400;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Libertinus+Mono&display=swap');
 @import "tailwindcss";
+@plugin 'tailwind-scrollbar';
+
+.asul-regular {
+    font-family: "Asul", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.asul-bold {
+    font-family: "Asul", serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.courier-prime-regular {
+    font-family: "Courier Prime", monospace;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.courier-prime-bold {
+    font-family: "Courier Prime", monospace;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.courier-prime-regular-italic {
+    font-family: "Courier Prime", monospace;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.courier-prime-bold-italic {
+    font-family: "Courier Prime", monospace;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.libertinus-mono-regular {
+    font-family: "Libertinus Mono", monospace;
+    font-weight: 400;
+    font-style: normal;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}

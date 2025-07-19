@@ -2,26 +2,29 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
+import { cn } from "./components/utils";
 import './root.css';
-import HomePage from './pages/HomePage';
-import ReportPage from './pages/ReportPage';
-import OpeningPage from './pages/OpeningPage';
+import Opening from './explorer/Opening';
+import Homepage from './homepage/Homepage';
+import Report from './report/Report';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomePage />
+    element: <Homepage />
   }, {
     path: "/report",
-    element: <ReportPage />
+    element: <Report />
   }, {
     path: "/explorer",
-    element: <OpeningPage />
+    element: <Opening />
   }
 ])
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <div className={cn('overflow-y-scroll text-white select-none scrollbar-thin')}>
+      <RouterProvider router={router} />
+    </div>
   </StrictMode>,
 );
