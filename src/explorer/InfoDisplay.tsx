@@ -1,4 +1,8 @@
-import InfoDisplayGrid from "../components/UI/InfoDisplayGrid";
+import React, { Fragment } from "react";
+
+import BestMoveChart from "../components/ui/BestMoveChart";
+import EloTrendGraph from "../components/ui/EloTrendGraph";
+import InfoDisplayGrid from "../components/ui/InfoDisplayGrid";
 
 const GridInfo = {
   winLossDraw: {
@@ -35,6 +39,29 @@ interface GameData {
   white: { name: string; elo: number };
   black: { name: string; elo: number };
 }
+
+// Sample data for D3.js visualizations
+const sampleEloTrendData = [
+  { date: "2024-01-01", elo: 1200 },
+  { date: "2024-02-01", elo: 1250 },
+  { date: "2024-03-01", elo: 1180 },
+  { date: "2024-04-01", elo: 1320 },
+  { date: "2024-05-01", elo: 1280 },
+  { date: "2024-06-01", elo: 1350 },
+  { date: "2024-07-01", elo: 1400 },
+  { date: "2024-08-01", elo: 1380 },
+  { date: "2024-09-01", elo: 1450 },
+  { date: "2024-10-01", elo: 1420 },
+  { date: "2024-11-01", elo: 1480 },
+  { date: "2024-12-01", elo: 1500 }
+];
+
+const sampleBestMoveData = [
+  { move: "Nf3", evaluation: 0.85, frequency: 0.4 },
+  { move: "d4", evaluation: 0.72, frequency: 0.3 },
+  { move: "e4", evaluation: 0.68, frequency: 0.2 },
+  { move: "c4", evaluation: 0.45, frequency: 0.1 }
+];
 
 interface InfoDisplayProps {
   data: GameData[];
@@ -87,80 +114,83 @@ const InfoDisplay = ({ data }: InfoDisplayProps) => {
   const stats = calculateStats(data);
 
   return (
-    <div className="p-2 grid h-full w-full grid-cols-3 gap-6">
+    <div className="p-2 grid h-full w-full grid-cols-3 gap-3">
       <InfoDisplayGrid
         title={GridInfo.winLossDraw.title}
         smallTitle={GridInfo.winLossDraw.smallTitle}
         help={GridInfo.winLossDraw.help}
-        className="col-span-1 row-start-1 row-end-1 text-xl min-h-[110px]"
+        className="col-span-1 row-start-1 row-end-1 min-h-[80px]"
       >
-        <div className="flex flex-row items-center justify-center h-full w-full text-lg flex-wrap gap-2">
-          <span className="text-green-600 font-bold">{stats.winPercentage}{CONTENT.percentage}</span>
-          <span>{CONTENT.separator}</span>
-          <span className="text-red-600 font-bold">{stats.lossPercentage}{CONTENT.percentage}</span>
-          <span>{CONTENT.separator}</span>
-          <span className="text-yellow-600 font-bold">{stats.drawPercentage}{CONTENT.percentage}</span>
+        <div className="flex flex-row items-center justify-center h-full w-full text-sm sm:text-base flex-wrap gap-1 sm:gap-2">
+          {[
+            { value: stats.winPercentage, color: "text-green-600", type: "win" },
+            { value: stats.lossPercentage, color: "text-red-600", type: "loss" },
+            { value: stats.drawPercentage, color: "text-yellow-600", type: "draw" }
+          ].map((item, index) => (
+            <Fragment key={`stat-${item.type}`}>
+              <span className={`font-bold ${item.color}`}>
+                {item.value}{CONTENT.percentage}
+              </span>
+              {index < 2 && <span>{CONTENT.separator}</span>}
+            </Fragment>
+          ))}
         </div>
       </InfoDisplayGrid>
 
       <InfoDisplayGrid
         title={GridInfo.openingEval.title}
         help={GridInfo.openingEval.help}
-        className="col-span-1 row-start-2 row-end-2 text-xl min-h-[110px]"
+        className="col-span-1 row-start-2 row-end-2"
       >
-        <div className="flex items-center justify-center h-full w-full">
-          <span className="text-2xl font-semibold text-gray-600">
-            {CONTENT.notAvailable}
-          </span>
-        </div>
+        <span className="text-lg sm:text-xl font-semibold text-gray-600">
+          {CONTENT.notAvailable}
+        </span>
       </InfoDisplayGrid>
 
       <InfoDisplayGrid
         title={GridInfo.averageMoves.title}
         smallTitle={GridInfo.averageMoves.smallTitle}
         help={GridInfo.averageMoves.help}
-        className="col-span-1 row-start-3 row-end-3 text-xl min-h-[110px]"
+        className="col-span-1 row-start-3 row-end-3"
       >
-        <div className="flex items-center justify-center h-full w-full">
-          <span className="text-3xl font-bold text-blue-600">
-            {stats.averageMoves}
-          </span>
+        <span className="text-base font-bold text-blue-600">
+          {stats.averageMoves}
+        </span>
+      </InfoDisplayGrid>
+
+      <InfoDisplayGrid
+        title={GridInfo.strongestPlayer.title}
+        help={GridInfo.strongestPlayer.help}
+        className="col-span-1 row-start-4 row-end-4 "
+      >
+        <div className="text-base font-bold text-purple-600 text-center leading-tight">
+          {stats.strongestPlayer.name}
         </div>
       </InfoDisplayGrid>
 
       <InfoDisplayGrid
         title={GridInfo.eloTrend.title}
         help={GridInfo.eloTrend.help}
-        className="col-span-2 row-span-2 text-xl min-h-[110px]"
+        className="col-span-2 row-span-2"
       >
         <div className="flex items-center justify-center h-full w-full">
-          <span className="text-lg text-gray-600">
-            {CONTENT.eloTrendNotAvailable}
-          </span>
-        </div>
-      </InfoDisplayGrid>
-
-      <InfoDisplayGrid
-        title={GridInfo.strongestPlayer.title}
-        help={GridInfo.strongestPlayer.help}
-        className="col-span-1 row-start-4 row-end-4 text-xl min-h-[110px]"
-      >
-        <div className="flex flex-col items-center justify-center h-full w-full p-4">
-          <div className="text-base font-bold text-purple-600 mb-2">
-            {stats.strongestPlayer.name}
-          </div>
+          <EloTrendGraph
+            data={sampleEloTrendData}
+            className="w-full h-full"
+          />
         </div>
       </InfoDisplayGrid>
 
       <InfoDisplayGrid
         title={GridInfo.bestMoveAfter.title}
         help={GridInfo.bestMoveAfter.help}
-        className="col-span-2 row-span-2 text-xl min-h-[110px]"
+        className="col-span-2 row-span-2"
       >
         <div className="flex items-center justify-center h-full w-full">
-          <span className="text-lg text-gray-600">
-            {CONTENT.bestMoveNotAvailable}
-          </span>
+          <BestMoveChart
+            data={sampleBestMoveData}
+            className="w-full h-full flex items-center justify-center"
+          />
         </div>
       </InfoDisplayGrid>
     </div>

@@ -1,8 +1,8 @@
 import { FaDiscord, FaGithub, FaInstagram } from "react-icons/fa";
 
+import MainContainer from "../components/containers/MainContainer";
 import BigTitle from "../components/Text/BigTitle";
 import Subtitle from "../components/Text/Subtitle";
-import MainContainer from "../components/UI/MainContainer";
 import { cn } from "../components/utils";
 
 const CONTENT = {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { cn } from "../utils";
-import Option, { OptionType } from "./Option";
+import Option, {OptionType} from './Option';
 
 interface DropdownProps {
   options?: OptionType[];

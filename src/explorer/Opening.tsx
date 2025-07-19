@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Chessboard } from "react-chessboard";
 
 import InfoDisplay from "./InfoDisplay";
+import MainContainer from "../components/containers/MainContainer";
 import Title from "../components/Text/Title";
-import Dropdown from "../components/UI/Dropdown";
-import InputField from "../components/UI/InputField";
-import MainContainer from "../components/UI/MainContainer";
+import Dropdown from "../components/ui/Dropdown";
+import InputField from "../components/ui/InputField";
 import { cn } from "../components/utils";
 
 const CONTENT = {
@@ -1595,8 +1595,8 @@ const Opening = () => {
       game.variation.toLowerCase().includes(search.toLowerCase())
   );
 
-  const selectedGame = selectedVariation 
-    ? filtered.find(game => game.variation === selectedVariation) 
+  const selectedGame = selectedVariation
+    ? filtered.find(game => game.variation === selectedVariation)
     : filtered[0];
 
   const currentFen = selectedGame?.openingFen || "";

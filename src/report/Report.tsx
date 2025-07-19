@@ -1,5 +1,5 @@
-import GlassCard from "../components/UI/GlassCard";
-import MainContainer from "../components/UI/MainContainer";
+import GlassCard from "../components/background/GlassCard";
+import MainContainer from "../components/containers/MainContainer";
 import { cn } from "../components/utils";
 
 const CONTENT = {

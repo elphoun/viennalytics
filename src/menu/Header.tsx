@@ -2,8 +2,8 @@ import { memo } from 'react';
 import { Link } from 'react-router-dom';
 
 import GraphIcon from "../components/background/GraphIcon";
-import HeaderLink from "../components/UI/HeaderLink";
-import SearchGlassIcon from '../components/UI/SearchGlassIcon';
+import HeaderLink from "../components/ui/HeaderLink";
+import SearchGlassIcon from '../components/ui/SearchGlassIcon';
 import { cn } from "../components/utils";
 
 const CONTENT = {
