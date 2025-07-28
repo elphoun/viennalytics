@@ -1,14 +1,26 @@
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 import React from "react";
 
+// ─ Helper Functions ─────────────────────────────────────────────────────────────────────────────
+
 /**
- * @description ButtonProps describes the props for a button
- *
- * @property {React.ReactNode} icon - Optional icon to display in the button
- * @property {string} label - The text label of the button
- * @property {() => void} onClick - Function to call when the button is clicked
- * @property {boolean} [disabled] - Whether the button is disabled
- * @property {'button' | 'submit' | 'reset'} [type] - The button type attribute
- * @property {string} [className] - Additional CSS classes for the button
+ * Universal TextProps for all text components
+ * @property text - The text to display
+ * @property icon - Optional icon to display
+ */
+interface TextProps {
+  text: string;
+  icon?: React.ReactNode;
+}
+
+/**
+ * ClickProps describes the props for a button
+ * @property icon - Optional icon to display in the button
+ * @property label - The text label of the button
+ * @property onClick - Function to call when the button is clicked
+ * @property disabled - Whether the button is disabled
+ * @property type - The button type attribute
+ * @property className - Additional CSS classes for the button
  */
 interface ClickProps {
   icon?: React.ReactNode;
@@ -19,4 +31,5 @@ interface ClickProps {
   className?: string;
 }
 
-export type { ClickProps };
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
+export type { ClickProps, TextProps };

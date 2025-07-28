@@ -1,17 +1,31 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { createContext } from "react";
+
+import { GamesContextType, OpeningsContextType } from "./ContextIntefaces";
 
 // ─ Helper Functions ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Utility function for merging class names using clsx and tailwind-merge.
- * @param inputs - List of class names (strings, undefined, null, or false)
- * @returns A single merged class name string
- */
-function cn(...inputs: (string | undefined | null | false)[]) {
-  return twMerge(clsx(inputs));
-}
+/** OpeningsContext stores the openings in a local context */
+const OpeningsContext = createContext<OpeningsContextType>({
+    openings: [],
+    fetchOpenings: async () => { },
+    isLoading: false,
+    isLoaded: false,
+});
+OpeningsContext.displayName = 'OpeningsContext'
+
+/** GamesContext stores the games in a local context */
+const GamesContext = createContext<GamesContextType>({
+    games: [],
+    fetchGames: async () => { },
+    isLoading: false,
+    isLoaded: false,
+});
+GamesContext.displayName = 'GamesContext'
 
 // ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
-export { cn };
+export {
+    OpeningsContext,
+    GamesContext
+};
+

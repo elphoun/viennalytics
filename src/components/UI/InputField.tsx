@@ -1,6 +1,7 @@
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC, useState, useMemo, ChangeEvent } from 'react';
 import { CiSearch } from "react-icons/ci";
 
+import { useOpenings } from '../../context/UseContext';
 import { cn } from "../utils";
 
 interface InputFieldProps {
@@ -10,7 +11,6 @@ interface InputFieldProps {
   type?: string;
   className?: string;
   disabled?: boolean;
-  datalistOptions?: string[];
 }
 
 const InputField: FC<InputFieldProps> = ({
@@ -19,28 +19,27 @@ const InputField: FC<InputFieldProps> = ({
   onAction,
   type = "text",
   className = "",
-  disabled = false,
-  datalistOptions
+  disabled = false
 }) => {
-  const [temp, setTemp] = useState(value);
-  const [showDropdown, setShowDropdown] = useState(false);
+  const { openings } = useOpenings();
+  const [temp, setTemp] = useState<string>(value);
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
 
-  useEffect(() => {
-    setTemp(value);
-  }, [value]);
+  const options = useMemo(() => openings.map(opening => opening.opening), [openings]);
 
-  const handleChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
     const newValue = ev.target.value;
     setTemp(newValue);
-    
-    if (datalistOptions) {
-      const filtered = datalistOptions.filter(option =>
+
+    const filtered = newValue.trim() === ''
+      ? options
+      : options.filter(option =>
         option.toLowerCase().includes(newValue.toLowerCase())
       );
-      setFilteredOptions(filtered);
-      setShowDropdown(newValue.length > 0 && filtered.length > 0);
-    }
+    setFilteredOptions(filtered);
+    setShowDropdown(true);
   };
 
   const handleOptionClick = (option: string) => {
@@ -50,13 +49,21 @@ const InputField: FC<InputFieldProps> = ({
   };
 
   const handleFocus = () => {
-    if (datalistOptions && temp.length > 0) {
-      setShowDropdown(true);
-    }
+    setFilteredOptions(options);
+    setShowDropdown(true);
   };
 
   const handleBlur = () => {
-    setTimeout(() => setShowDropdown(false), 200);
+    setTimeout(() => setShowDropdown(false), 300);
+  };
+
+  const handleKeyDown = (ev: React.KeyboardEvent<HTMLInputElement>) => {
+    if (ev.key === 'Enter') {
+      onAction(temp);
+      setShowDropdown(false);
+    } else if (ev.key === 'Escape') {
+      setShowDropdown(false);
+    }
   };
 
   const searchAriaLabel = `Search ${placeholder}`;
@@ -67,6 +74,7 @@ const InputField: FC<InputFieldProps> = ({
         type={type}
         value={temp}
         onChange={handleChange}
+        onKeyDown={handleKeyDown}
         onFocus={handleFocus}
         onBlur={handleBlur}
         placeholder={placeholder}

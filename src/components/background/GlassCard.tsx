@@ -1,12 +1,25 @@
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 import React from "react";
 
 import { cn } from "../utils";
 
+// ─ Helper Functions ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Props for GlassCard component.
+ * @property children - Content to display inside the card
+ * @property className - Additional CSS classes
+ */
 interface GlassCardProps {
   children: React.ReactNode;
   className?: string;
 }
 
+/**
+ * GlassCard component displays a glassmorphic styled card for wrapping content.
+ * @param children - Content to display inside the card
+ * @param className - Additional CSS classes
+ */
 const GlassCard = React.memo(
   ({ children, className }: GlassCardProps) => {
     return (
@@ -24,4 +37,5 @@ const GlassCard = React.memo(
 
 GlassCard.displayName = "GlassCard";
 
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
 export default GlassCard; 

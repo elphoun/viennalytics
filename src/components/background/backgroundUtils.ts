@@ -1,3 +1,8 @@
+// ─ Constants ────────────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Theme constants for background colors, gradients, and animations.
+ */
 export const backgroundTheme = {
     colors: {
         primary: "#18CCFC",
@@ -22,7 +27,11 @@ export const backgroundTheme = {
     },
 } as const;
 
-// Background utility functions
+// ─ Helper Functions ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Utility functions for background effects and styles.
+ */
 export const backgroundUtils = {
     // Generate random animation delay
     getRandomDelay: () => Math.random() * 10,

@@ -1,35 +1,32 @@
-import { useState } from 'react';
-
 import { cn } from "../utils";
-import Option, {OptionType} from './Option';
+import Option from './Option';
 
 interface DropdownProps {
-  options?: OptionType[];
+  options?: string[];
+  value?: string;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
   onSelect?: (value: string) => void;
 }
 
-const Dropdown = ({ options, placeholder = "No Variation", className, disabled = false, onSelect }: DropdownProps) => {
-  const [search, setSearch] = useState("")
+const Dropdown = ({ options, value, placeholder = "No Variation", className, disabled = false, onSelect }: DropdownProps) => {
   const renderOptions = options && options.length > 0 ? (
     <>
       {options.map((option) => (
-        <Option key={option.value} option={option} />
+        <Option key={option} option={option} />
       ))}
     </>
   ) : (
-    <Option option={{ label: placeholder }} className="text-gray-400" />
+    <Option option='No Variants' className="text-gray-400" />
   );
 
   return (
     <select
-      value={search}
-      onChange={(event) => {
-        setSearch(event.target.value);
+      value={value}
+      onChange={(ev) => {
         if (onSelect) {
-          onSelect(event.target.value);
+          onSelect(ev.target.value);
         }
       }}
       disabled={disabled}

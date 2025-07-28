@@ -65,12 +65,12 @@ const BackgroundBeams = memo(
     return (
       <div
         className={cn(
-          "fixed inset-0 flex h-full w-full items-center justify-center bg-neutral-950 [mask-repeat:no-repeat] [mask-size:40px] z-1",
+          "fixed inset-0 flex h-screen w-screen items-center justify-center bg-neutral-950 [mask-repeat:no-repeat] [mask-size:40px] z-1",
           className
         )}
       >
         <svg
-          className="absolute z-0 w-full h-full pointer-events-none"
+          className="absolute z-0 w-screen h-screen pointer-events-none"
           width="100%"
           height="100%"
           viewBox="0 0 696 316"

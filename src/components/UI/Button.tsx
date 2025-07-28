@@ -1,6 +1,9 @@
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 
 import { cn } from "../utils";
+
+// ─ Helper Functions ─────────────────────────────────────────────────────────────────────────────
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -9,6 +12,13 @@ interface ButtonProps {
   disabled?: boolean;
 }
 
+/**
+ * Button component renders a styled button with optional click handler and disabled state.
+ * @param children - The content to display inside the button
+ * @param onClick - Optional click handler
+ * @param className - Additional CSS classes
+ * @param disabled - Whether the button is disabled
+ */
 const Button = ({ children, onClick, className, disabled = false }: ButtonProps) => {
   return (
     <button
@@ -22,4 +32,5 @@ const Button = ({ children, onClick, className, disabled = false }: ButtonProps)
   );
 };
 
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
 export default Button; 

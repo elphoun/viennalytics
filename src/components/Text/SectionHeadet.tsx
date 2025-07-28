@@ -5,18 +5,18 @@ import { TextProps } from "../interfaces";
 import { cn } from "../utils";
 
 /**
- * Subtitle component displays a styled subtitle text with an optional icon.
- * @param text - The subtitle text to display
- * @param icon - Optional icon to display next to the subtitle
+ * SectionHeader component displays a styled SectionHeader text with an optional icon.
+ * @param text - The SectionHeader text to display
+ * @param icon - Optional icon to display next to the SectionHeader
  */
-const Subtitle = memo(({ text, icon }: TextProps) => (
-    <h2 className={cn("text-2xl font-bold asul-bold tracking-wide flex flex-row flex-wrap items-center gap-2 mb-6 drop-shadow-sm")}> 
+const SectionHeader = memo(({ text, icon }: TextProps) => (
+    <h3 className={cn("text-lg font-semibold electrolize-regular tracking-wide flex flex-row flex-wrap items-center gap-2 mb-6 drop-shadow-sm")}>
         {text}
         {icon && <span>{icon}</span>}
-    </h2>
+    </h3>
 ));
 
-Subtitle.displayName = "Subtitle";
+SectionHeader.displayName = "SectionHeader";
 
 // ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
-export default Subtitle; 
+export default SectionHeader; 

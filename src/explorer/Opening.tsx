@@ -1,1646 +1,295 @@
-import { useState } from "react";
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Chessboard } from "react-chessboard";
 
 import InfoDisplay from "./InfoDisplay";
 import MainContainer from "../components/containers/MainContainer";
 import Title from "../components/Text/Title";
+import Button from "../components/ui/Button";
 import Dropdown from "../components/ui/Dropdown";
+import EvalBar from "../components/ui/EvalBar";
 import InputField from "../components/ui/InputField";
-import { cn } from "../components/utils";
+import ReportIcon from "../components/ui/ReportIcon";
+import { useOpenings } from "../context/UseContext";
+import { useDebounce } from "../context/Providers/useDebounce";
 
+// ─ Constants ────────────────────────────────────────────────────────────────────────────────────
 const CONTENT = {
   title: "Opening Explorer"
 }
 
-const TESTCASE = [
-  {
-    "movePair": 32,
-    "moves": [
-      "c4",
-      "Nf6",
-      "Nc3",
-      "e5",
-      "e3",
-      "Nc6",
-      "a3",
-      "d5",
-      "cxd5",
-      "Nxd5",
-      "Qc2",
-      "Nxc3",
-      "bxc3",
-      "Qd6",
-      "Bd3",
-      "Be6",
-      "Rb1",
-      "O-O-O",
-      "Be2",
-      "g5",
-      "Nf3",
-      "Be7",
-      "d4",
-      "Kb8",
-      "O-O",
-      "g4",
-      "Nd2",
-      "f5",
-      "Nc4",
-      "Qd7",
-      "Rd1",
-      "Bd5",
-      "Bd3",
-      "Rhf8",
-      "a4",
-      "Qe6",
-      "Nd2",
-      "exd4",
-      "exd4",
-      "f4",
-      "Ne4",
-      "g3",
-      "hxg3",
-      "fxg3",
-      "fxg3",
-      "h5",
-      "Bf4",
-      "h4",
-      "Re1",
-      "Qd7",
-      "Qb2",
-      "b6",
-      "Nc5",
-      "Bxc5",
-      "dxc5",
-      "Rxf4",
-      "cxb6",
-      "axb6",
-      "gxf4",
-      "h3",
-      "a5",
-      "Rg8",
-      "Bf1",
-      "hxg2"
-    ],
-    "opening": "English Opening",
-    "variation": "Anglo-Indian Defense",
-    "openingFen": "rnbqkb1r/pp3ppp/4p3/2pn4/8/2N1PN2/PP1P1PPP/R1BQKB1R",
-    "openingEval": "N/A",
-    "finalFen": "1k4r1/2pq4/1pn5/P2b4/5P2/2P5/1Q4p1/1R2RBK1",
-    "white": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "black": {
-      "elo": 2744.0,
-      "name": "Giri, Anish"
-    },
-    "result": "black"
-  },
-  {
-    "movePair": 41,
-    "moves": [
-      "e4",
-      "e5",
-      "Nf3",
-      "Nc6",
-      "d4",
-      "exd4",
-      "Nxd4",
-      "Nf6",
-      "Nxc6",
-      "bxc6",
-      "e5",
-      "Qe7",
-      "Qe2",
-      "Nd5",
-      "c4",
-      "Qb4+",
-      "Nd2",
-      "Nf4",
-      "Qe3",
-      "Ng6",
-      "Bd3",
-      "Bc5",
-      "Qg3",
-      "O-O",
-      "O-O",
-      "d6",
-      "Nb3",
-      "Nxe5",
-      "a3",
-      "Qb6",
-      "Nxc5",
-      "Qxc5",
-      "Be3",
-      "Qa5",
-      "b4",
-      "Qa4",
-      "Bd4",
-      "f6",
-      "Bxe5",
-      "fxe5",
-      "f4",
-      "Bf5",
-      "fxe5",
-      "Bxd3",
-      "Qxd3",
-      "dxe5",
-      "Qd7",
-      "Qb3",
-      "Qxc6",
-      "Qe3+",
-      "Kh1",
-      "Kh8",
-      "Rfe1",
-      "Qc3",
-      "Qxc7",
-      "Rac8",
-      "Qxa7",
-      "Rxc4",
-      "h3",
-      "Rcf4",
-      "Qc5",
-      "Qb2",
-      "Qxe5",
-      "Qb3",
-      "Qe3",
-      "Qc4",
-      "Rac1",
-      "Qf7",
-      "Qg3",
-      "h6",
-      "b5",
-      "Qd5",
-      "a4",
-      "Rxa4",
-      "Rb1",
-      "Rf5",
-      "b6",
-      "Rg5",
-      "b7",
-      "Qxb7",
-      "Qxg5"
-    ],
-    "opening": "Scotch",
-    "variation": "Mieses",
-    "openingFen": "r1bqk1nr/pppp1ppp/2n5/8/1bB1P3/2P2N2/P4PPP/RNBQK2R",
-    "openingEval": "N/A",
-    "finalFen": "7k/1q4p1/7p/6Q1/r7/7P/6P1/1R2R2K",
-    "white": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "black": {
-      "elo": 2622.0,
-      "name": "Van Foreest, Jorden"
-    },
-    "result": "white"
-  },
-  {
-    "movePair": 30,
-    "moves": [
-      "c4",
-      "b6",
-      "Nc3",
-      "e6",
-      "e4",
-      "Bb7",
-      "Nf3",
-      "Bb4",
-      "Bd3",
-      "Bxc3",
-      "dxc3",
-      "d6",
-      "Nd4",
-      "Nd7",
-      "b3",
-      "Nc5",
-      "f3",
-      "Nxd3+",
-      "Qxd3",
-      "Ne7",
-      "Bg5",
-      "Qd7",
-      "a4",
-      "f6",
-      "Bh4",
-      "e5",
-      "Nc2",
-      "g5",
-      "Bf2",
-      "f5",
-      "Ne3",
-      "f4",
-      "Nd5",
-      "Nxd5",
-      "cxd5",
-      "a5",
-      "Qb5",
-      "Ba6",
-      "Qxd7+",
-      "Kxd7",
-      "c4",
-      "h5",
-      "h3",
-      "Ke7",
-      "Ke2",
-      "Bc8",
-      "Rag1",
-      "Bd7",
-      "g3",
-      "Rag8",
-      "gxf4",
-      "gxf4",
-      "h4",
-      "Kf7",
-      "Kd2",
-      "Ke7",
-      "Ke2",
-      "Kf7",
-      "Kd2",
-      "Ke7"
-    ],
-    "opening": "English",
-    "variation": "1...b6 2.Nc3 e6 3.e4",
-    "openingFen": "rnbqkbnr/p1pp1ppp/1p2p3/8/2P1P3/2N5/PP1P1PPP/R1BQKBNR",
-    "openingEval": "N/A",
-    "finalFen": "6rr/2pbk3/1p1p4/p2Pp2p/P1P1Pp1P/1P3P2/3K1B2/6RR",
-    "white": {
-      "elo": 2807.0,
-      "name": "Nepomniachtchi, Ian"
-    },
-    "black": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "result": "draw"
-  },
-  {
-    "movePair": 7,
-    "moves": [
-      "d4",
-      "d5",
-      "c4",
-      "dxc4",
-      "e3",
-      "e5",
-      "Nf3",
-      "exd4",
-      "Bxc4",
-      "Nf6",
-      "Qb3",
-      "Qe7",
-      "O-O"
-    ],
-    "opening": "QGA",
-    "variation": "3.e3 e5",
-    "openingFen": "rnbqkb1r/ppp2ppp/5n2/8/2BP4/8/PP3PPP/RNBQK1NR",
-    "openingEval": "N/A",
-    "finalFen": "rnb1kb1r/ppp1qppp/5n2/8/2Bp4/1Q2PN2/PP3PPP/RNB2RK1",
-    "white": {
-      "elo": 2716.0,
-      "name": "Mamedyarov, Shakhriyar"
-    },
-    "black": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "result": "white"
-  },
-  {
-    "movePair": 47,
-    "moves": [
-      "e4",
-      "c5",
-      "Nf3",
-      "e6",
-      "c3",
-      "d5",
-      "e5",
-      "d4",
-      "Bd3",
-      "Bd7",
-      "O-O",
-      "Bc6",
-      "Re1",
-      "g5",
-      "h3",
-      "h5",
-      "Na3",
-      "g4",
-      "Nh2",
-      "Nh6",
-      "Be4",
-      "d3",
-      "b4",
-      "Bxe4",
-      "Rxe4",
-      "Qd5",
-      "Qa4+",
-      "Nc6",
-      "bxc5",
-      "Bxc5",
-      "Nb5",
-      "O-O-O",
-      "Qc4",
-      "g3",
-      "Nf1",
-      "gxf2+",
-      "Kh2",
-      "Nf5",
-      "Ba3",
-      "Bxa3",
-      "Nxa3",
-      "Kb8",
-      "Qxd5",
-      "Rxd5",
-      "Nc4",
-      "b5",
-      "Nce3",
-      "Nxe3",
-      "Nxe3",
-      "Rxe5",
-      "Rf4",
-      "f5",
-      "Kg3",
-      "Kc7",
-      "a4",
-      "a6",
-      "axb5",
-      "axb5",
-      "Kxf2",
-      "Re4",
-      "Rxe4",
-      "fxe4",
-      "Kg3",
-      "Rf8",
-      "Re1",
-      "Ne7",
-      "Rb1",
-      "Kc6",
-      "Rb4",
-      "Nf5+",
-      "Kf4",
-      "Nd6+",
-      "Ke5",
-      "Rf2",
-      "Rd4",
-      "Nf7+",
-      "Kxe6",
-      "Ng5+",
-      "Ke5",
-      "Rxd2",
-      "h4",
-      "Re2",
-      "Rd6+",
-      "Kb7",
-      "hxg5",
-      "Rxe3",
-      "g6",
-      "Re2",
-      "g4",
-      "Rg2",
-      "gxh5",
-      "d2",
-      "Kxe4"
-    ],
-    "opening": "Sicilian Defense",
-    "variation": "Delayed Alapin Variation",
-    "openingFen": "rnb1kb1r/pp3ppp/4pn2/2pq4/3P4/2P2N2/PP3PPP/RNBQKB1R",
-    "openingEval": "N/A",
-    "finalFen": "8/1k6/3R2P1/1p5P/4K3/2P5/3p2r1/8",
-    "white": {
-      "elo": 2794.0,
-      "name": "Vachier-Lagrave, Maxime"
-    },
-    "black": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "result": "white"
-  },
-  {
-    "movePair": 44,
-    "moves": [
-      "e4",
-      "e5",
-      "Nf3",
-      "Nc6",
-      "Bb5",
-      "a6",
-      "Ba4",
-      "Nf6",
-      "O-O",
-      "Be7",
-      "Re1",
-      "b5",
-      "Bb3",
-      "d6",
-      "c3",
-      "O-O",
-      "h3",
-      "Bb7",
-      "d4",
-      "Re8",
-      "Nbd2",
-      "Bf8",
-      "a4",
-      "Qd7",
-      "axb5",
-      "axb5",
-      "Rxa8",
-      "Bxa8",
-      "d5",
-      "Nd8",
-      "Nf1",
-      "h6",
-      "N3h2",
-      "Nb7",
-      "Bc2",
-      "Nc5",
-      "b4",
-      "Na6",
-      "Ng4",
-      "Nh7",
-      "Ng3",
-      "c6",
-      "dxc6",
-      "Bxc6",
-      "Bb3",
-      "Nc7",
-      "Qf3",
-      "Ne6",
-      "h4",
-      "Qd8",
-      "Rd1",
-      "Qa8",
-      "Bd5",
-      "Bxd5",
-      "exd5",
-      "Nc7",
-      "Ne4",
-      "Qc8",
-      "Ne3",
-      "Qd7",
-      "Nf5",
-      "Ra8",
-      "Qh3",
-      "Rd8",
-      "Be3",
-      "Qc8",
-      "Qf3",
-      "Ne8",
-      "Bb6",
-      "Rd7",
-      "h5",
-      "Qb7",
-      "Be3",
-      "Kh8",
-      "g4",
-      "Be7",
-      "Nxe7",
-      "Rxe7",
-      "g5",
-      "hxg5",
-      "Bxg5",
-      "Rc7",
-      "h6",
-      "g6",
-      "Bf6+",
-      "Nexf6",
-      "Nxf6"
-    ],
-    "opening": "Ruy Lopez",
-    "variation": "Closed",
-    "openingFen": "r1bq1rk1/2p1bppp/p1np1n2/1p2p3/4P3/1BP2N1P/PP1P1PP1/RNBQR1K1",
-    "openingEval": "N/A",
-    "finalFen": "7k/1qr2p1n/3p1NpP/1p1Pp3/1P6/2P2Q2/5P2/3R2K1",
-    "white": {
-      "elo": 2715.0,
-      "name": "Garry Kasparov"
-    },
-    "black": {
-      "elo": 2705.0,
-      "name": "Anatoly Karpov"
-    },
-    "result": "draw"
-  },
-  {
-    "movePair": 25,
-    "moves": [
-      "e4",
-      "c5",
-      "Nf3",
-      "d6",
-      "d4",
-      "cxd4",
-      "Nxd4",
-      "Nf6",
-      "Nc3",
-      "a6",
-      "Bg5",
-      "e6",
-      "f4",
-      "Qc7",
-      "Bxf6",
-      "gxf6",
-      "Qf3",
-      "b5",
-      "a3",
-      "Nc6",
-      "Nxc6",
-      "Qxc6",
-      "f5",
-      "Qc5",
-      "Be2",
-      "Ra7",
-      "O-O-O",
-      "Qe5",
-      "Rhf1",
-      "Rc7",
-      "Kb1",
-      "h5",
-      "h4",
-      "Be7",
-      "Qe3",
-      "Qc5",
-      "Qg3",
-      "Kf8",
-      "fxe6",
-      "fxe6",
-      "Qg6",
-      "Qe5",
-      "Rd3",
-      "Bd8",
-      "Rg3",
-      "Rf7",
-      "Rg5",
-      "Qd4",
-      "Bxh5"
-    ],
-    "opening": "Sicilian",
-    "variation": "Najdorf",
-    "openingFen": "r1bqkbnr/pp2pppp/2np4/2p5/4P3/2N2N2/PPPP1PPP/R1BQKB1R",
-    "openingEval": "N/A",
-    "finalFen": "2bb1k1r/5r2/p2pppQ1/1p4RB/3qP2P/P1N5/1PP3P1/1K3R2",
-    "white": {
-      "elo": 2622.0,
-      "name": "Van Foreest, Jorden"
-    },
-    "black": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "result": "white"
-  },
-  {
-    "movePair": 26,
-    "moves": [
-      "d4",
-      "Nf6",
-      "c4",
-      "e6",
-      "Nc3",
-      "d5",
-      "Bg5",
-      "Nbd7",
-      "e3",
-      "Be7",
-      "Nf3",
-      "O-O",
-      "Qc2",
-      "a6",
-      "cxd5",
-      "exd5",
-      "Bd3",
-      "h6",
-      "Bf4",
-      "c5",
-      "O-O",
-      "c4",
-      "Bf5",
-      "b5",
-      "Ne5",
-      "Bb7",
-      "a3",
-      "Re8",
-      "Rad1",
-      "Nf8",
-      "Bg3",
-      "Qb6",
-      "Bh4",
-      "Rad8",
-      "f4",
-      "a5",
-      "Kh1",
-      "b4",
-      "Na4",
-      "Qb5",
-      "Bxf6",
-      "gxf6",
-      "Ng4",
-      "h5",
-      "Qe2",
-      "Kg7",
-      "Rf3",
-      "Qxa4",
-      "Rh3",
-      "Ng6",
-      "Rxh5",
-      "Rh8"
-    ],
-    "opening": "Queen's Pawn",
-    "variation": "Neo-Indian",
-    "openingFen": "rnbqkb1r/pppp1ppp/4pn2/8/2PP4/2N5/PP2PPPP/R1BQKBNR",
-    "openingEval": "N/A",
-    "finalFen": "3r3r/1b2bpk1/5pn1/p2p1B1R/qppP1PN1/P3P3/1P2Q1PP/3R3K",
-    "white": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "black": {
-      "elo": 2716.0,
-      "name": "Mamedyarov, Shakhriyar"
-    },
-    "result": "black"
-  },
-  {
-    "movePair": 26,
-    "moves": [
-      "d4",
-      "Nf6",
-      "c4",
-      "e6",
-      "Nf3",
-      "d5",
-      "Nc3",
-      "Be7",
-      "Bg5",
-      "h6",
-      "Bh4",
-      "O-O",
-      "e3",
-      "b6",
-      "Be2",
-      "Bb7",
-      "Bxf6",
-      "Bxf6",
-      "cxd5",
-      "exd5",
-      "b4",
-      "c5",
-      "bxc5",
-      "bxc5",
-      "Rb1",
-      "Bc6",
-      "O-O",
-      "Nd7",
-      "Bb5",
-      "Qc7",
-      "Qc2",
-      "Rfc8",
-      "Rfc1",
-      "Bxb5",
-      "Nxb5",
-      "Qc6",
-      "dxc5",
-      "Nxc5",
-      "Qf5",
-      "Qe6",
-      "Nfd4",
-      "Qxf5",
-      "Nxf5",
-      "Ne6",
-      "Rxc8+",
-      "Rxc8",
-      "Nxa7",
-      "Rc2",
-      "Nb5",
-      "Rxa2",
-      "h3",
-      "Ra5"
-    ],
-    "opening": "Queen's Gambit Declined",
-    "variation": "Tartakower Defense",
-    "openingFen": "rn3rk1/p1p1qpp1/1p2b2p/3p4/3P4/4PN2/PP3PPP/2RQKB1R",
-    "openingEval": "N/A",
-    "finalFen": "6k1/5pp1/4nb1p/rN1p1N2/8/4P2P/5PP1/1R4K1",
-    "white": {
-      "elo": 2715.0,
-      "name": "Garry Kasparov"
-    },
-    "black": {
-      "elo": 2705.0,
-      "name": "Anatoly Karpov"
-    },
-    "result": "draw"
-  },
-  {
-    "movePair": 26,
-    "moves": [
-      "e4",
-      "c5",
-      "Nf3",
-      "d6",
-      "d4",
-      "cxd4",
-      "Nxd4",
-      "Nf6",
-      "Nc3",
-      "a6",
-      "Bg5",
-      "e6",
-      "f4",
-      "Qc7",
-      "Bxf6",
-      "gxf6",
-      "Qf3",
-      "b5",
-      "a3",
-      "Nc6",
-      "O-O-O",
-      "Nxd4",
-      "Rxd4",
-      "Rb8",
-      "Be2",
-      "Bd7",
-      "f5",
-      "Qc5",
-      "Rhd1",
-      "Qe5",
-      "Qh5",
-      "Be7",
-      "fxe6",
-      "Bxe6",
-      "Nd5",
-      "Qxh5",
-      "Bxh5",
-      "Rg8",
-      "Nc7+",
-      "Kd8",
-      "Nxa6",
-      "Rb6",
-      "Nb4",
-      "Rxg2",
-      "R4d2",
-      "Rxd2",
-      "Kxd2",
-      "f5",
-      "exf5",
-      "Bg5+",
-      "Ke2"
-    ],
-    "opening": "Sicilian",
-    "variation": "Najdorf",
-    "openingFen": "r1bqkbnr/pp2pppp/2np4/2p5/4P3/2N2N2/PPPP1PPP/R1BQKB1R",
-    "openingEval": "N/A",
-    "finalFen": "3k4/5p1p/1r1pb3/1p3PbB/1N6/P7/1PP1K2P/3R4",
-    "white": {
-      "elo": 2799.0,
-      "name": "Duda, Jan-Krzysztof"
-    },
-    "black": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "result": "white"
-  },
-  {
-    "movePair": 26,
-    "moves": [
-      "c4",
-      "e6",
-      "d4",
-      "d5",
-      "Nf3",
-      "Nf6",
-      "e3",
-      "Be7",
-      "Bd3",
-      "O-O",
-      "b3",
-      "b6",
-      "O-O",
-      "Bb7",
-      "Bb2",
-      "Nbd7",
-      "Nc3",
-      "a6",
-      "Rc1",
-      "Bd6",
-      "cxd5",
-      "exd5",
-      "Ne2",
-      "Re8",
-      "Ng3",
-      "Ne4",
-      "Qc2",
-      "Nxg3",
-      "hxg3",
-      "Nf6",
-      "Ne5",
-      "Qe7",
-      "b4",
-      "Ne4",
-      "b5",
-      "axb5",
-      "Bxb5",
-      "Rec8",
-      "Nc6",
-      "Qg5",
-      "a4",
-      "h5",
-      "Qe2",
-      "h4",
-      "gxh4",
-      "Qxh4",
-      "g3",
-      "Qg5",
-      "Rc2",
-      "Re8",
-      "Kg2",
-      "Re6"
-    ],
-    "opening": "English Opening",
-    "variation": "Agincourt Defense",
-    "openingFen": "rnbqkbnr/ppp2ppp/4p3/3p4/2P5/5N2/PP1PPPPP/RNBQKB1R",
-    "openingEval": "N/A",
-    "finalFen": "r5k1/1bp2pp1/1pNbr3/1B1p2q1/P2Pn3/4P1P1/1BR1QPK1/5R2",
-    "white": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "black": {
-      "elo": 2668.0,
-      "name": "Korobov, Anton"
-    },
-    "result": "black"
-  },
-  {
-    "movePair": 41,
-    "moves": [
-      "d4",
-      "d5",
-      "c4",
-      "e6",
-      "Nc3",
-      "c5",
-      "cxd5",
-      "cxd4",
-      "Qa4+",
-      "Bd7",
-      "Qxd4",
-      "exd5",
-      "Qxd5",
-      "Nf6",
-      "Qb3",
-      "Na6",
-      "Nf3",
-      "Nc5",
-      "Qd1",
-      "Nce4",
-      "e3",
-      "Bb4",
-      "Bd2",
-      "Bxc3",
-      "Bxc3",
-      "Nxc3",
-      "bxc3",
-      "Qa5",
-      "Qd4",
-      "Rc8",
-      "Qb4",
-      "Qc5",
-      "Bd3",
-      "Qxc3+",
-      "Qxc3",
-      "Rxc3",
-      "Kd2",
-      "Ra3",
-      "Rhb1",
-      "b6",
-      "Rb3",
-      "Ra5",
-      "Nd4",
-      "Ke7",
-      "a4",
-      "Rc8",
-      "f3",
-      "Ne8",
-      "Rb4",
-      "Nd6",
-      "e4",
-      "h5",
-      "h4",
-      "g5",
-      "hxg5",
-      "Rxg5",
-      "Bf1",
-      "Rgc5",
-      "Ke3",
-      "f5",
-      "exf5",
-      "Nxf5+",
-      "Nxf5+",
-      "Rxf5",
-      "Bd3",
-      "Re5+",
-      "Kf2",
-      "Rcc5",
-      "Be4",
-      "Bc6",
-      "Bxc6",
-      "Rxc6",
-      "Ra2",
-      "Rcc5",
-      "Rd2",
-      "Rc6",
-      "Ra2",
-      "Rcc5",
-      "Rd2",
-      "Rc6",
-      "Ra2"
-    ],
-    "opening": "QGD Tarrasch",
-    "variation": "von Hennig-Schara Gambit",
-    "openingFen": null,
-    "openingEval": "N/A",
-    "finalFen": "8/p3k3/1pr5/4r2p/PR6/5P2/R4KP1/8",
-    "white": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "black": {
-      "elo": 2765.0,
-      "name": "Grischuk, Alexander"
-    },
-    "result": "draw"
-  },
-  {
-    "movePair": 33,
-    "moves": [
-      "e4",
-      "c5",
-      "Nf3",
-      "d6",
-      "d4",
-      "cxd4",
-      "Nxd4",
-      "Nf6",
-      "Nc3",
-      "a6",
-      "Be2",
-      "e5",
-      "Nb3",
-      "Be7",
-      "O-O",
-      "O-O",
-      "Kh1",
-      "Be6",
-      "f4",
-      "exf4",
-      "Bxf4",
-      "Nc6",
-      "Qe1",
-      "Qc7",
-      "Qg3",
-      "Kh8",
-      "Rad1",
-      "Rad8",
-      "Nd5",
-      "Bxd5",
-      "exd5",
-      "Ne5",
-      "Nd4",
-      "Ne4",
-      "Qe3",
-      "Nc5",
-      "Bxe5",
-      "dxe5",
-      "Nf5",
-      "Bf6",
-      "b4",
-      "Na4",
-      "c4",
-      "e4",
-      "d6",
-      "Qd7",
-      "c5",
-      "g6",
-      "Nd4",
-      "Bg7",
-      "Bc4",
-      "Nb2",
-      "Rc1",
-      "Nxc4",
-      "Rxc4",
-      "f5",
-      "Ne2",
-      "h6",
-      "h3",
-      "g5",
-      "Rc2",
-      "Rde8",
-      "Nd4",
-      "f4",
-      "Qd2",
-      "f3"
-    ],
-    "opening": "Sicilian",
-    "variation": "Najdorf",
-    "openingFen": "r1bqkbnr/pp2pppp/2np4/2p5/4P3/2N2N2/PPPP1PPP/R1BQKB1R",
-    "openingEval": "N/A",
-    "finalFen": "4rr1k/1p1q2b1/p2P3p/2P3p1/1P1Np3/5p1P/P1RQ2P1/5R1K",
-    "white": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "black": {
-      "elo": 2799.0,
-      "name": "Duda, Jan-Krzysztof"
-    },
-    "result": "black"
-  },
-  {
-    "movePair": 24,
-    "moves": [
-      "d4",
-      "Nf6",
-      "c4",
-      "g6",
-      "Nc3",
-      "d5",
-      "cxd5",
-      "Nxd5",
-      "e4",
-      "Nxc3",
-      "bxc3",
-      "Bg7",
-      "Nf3",
-      "c5",
-      "h3",
-      "O-O",
-      "Be2",
-      "cxd4",
-      "cxd4",
-      "Nc6",
-      "Be3",
-      "f5",
-      "Bc4+",
-      "Kh8",
-      "O-O",
-      "fxe4",
-      "Ng5",
-      "Nxd4",
-      "Nf7+",
-      "Rxf7",
-      "Bxf7",
-      "Qd6",
-      "Re1",
-      "Bxh3",
-      "Bxd4",
-      "Bxd4",
-      "Rxe4",
-      "e5",
-      "gxh3",
-      "Rf8",
-      "Rxd4",
-      "exd4",
-      "Bc4",
-      "Qf4",
-      "Qe2",
-      "Qg5+",
-      "Qg4"
-    ],
-    "opening": "Gr\u00c3\u00bcnfeld Defense",
-    "variation": "Exchange Variation",
-    "openingFen": "rnbqkb1r/ppp1pp1p/6p1/3n4/3P4/2N5/PP2PPPP/R1BQKBNR",
-    "openingEval": "N/A",
-    "finalFen": "5r1k/pp5p/6p1/6q1/2Bp2Q1/7P/P4P2/R5K1",
-    "white": {
-      "elo": 2765.0,
-      "name": "Grischuk, Alexander"
-    },
-    "black": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "result": "white"
-  },
-  {
-    "movePair": 18,
-    "moves": [
-      "d4",
-      "Nf6",
-      "c4",
-      "e6",
-      "Nc3",
-      "Bb4",
-      "Nf3",
-      "d5",
-      "cxd5",
-      "exd5",
-      "Bf4",
-      "Ne4",
-      "Rc1",
-      "Nd7",
-      "e3",
-      "g5",
-      "Bg3",
-      "h5",
-      "Qb3",
-      "Bxc3+",
-      "bxc3",
-      "c6",
-      "Nd2",
-      "Nxd2",
-      "Kxd2",
-      "h4",
-      "Bd6",
-      "Qf6",
-      "Ba3",
-      "Qxf2+",
-      "Be2",
-      "Nf6",
-      "Qb4",
-      "Ne4+",
-      "Kd1",
-      "c5"
-    ],
-    "opening": "Nimzo-Indian Defense",
-    "variation": "Ragozin Variation",
-    "openingFen": "r1bq1rk1/ppp2ppp/2n1pn2/8/1bpP4/2NBPN2/PP3PPP/R1BQ1RK1",
-    "openingEval": "N/A",
-    "finalFen": "r1b1k2r/pp3p2/8/2pp2p1/1Q1Pn2p/B1P1P3/P3BqPP/2RK3R",
-    "white": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "black": {
-      "elo": 2807.0,
-      "name": "Nepomniachtchi, Ian"
-    },
-    "result": "black"
-  },
-  {
-    "movePair": 30,
-    "moves": [
-      "e4",
-      "c5",
-      "Nf3",
-      "d6",
-      "d4",
-      "cxd4",
-      "Nxd4",
-      "Nf6",
-      "Nc3",
-      "a6",
-      "Bg5",
-      "e6",
-      "f4",
-      "Qc7",
-      "Bxf6",
-      "gxf6",
-      "Qf3",
-      "b5",
-      "a3",
-      "Nc6",
-      "O-O-O",
-      "Nxd4",
-      "Rxd4",
-      "Qc5",
-      "Rd3",
-      "Rb8",
-      "b4",
-      "Qa7",
-      "f5",
-      "a5",
-      "Na2",
-      "Be7",
-      "Be2",
-      "h5",
-      "Kb1",
-      "Bd7",
-      "Rhd1",
-      "h4",
-      "bxa5",
-      "Qxa5",
-      "Nb4",
-      "Rc8",
-      "Qg4",
-      "Kf8",
-      "fxe6",
-      "Bxe6",
-      "Qf3",
-      "Rc5",
-      "Qe3",
-      "f5",
-      "Bf3",
-      "fxe4",
-      "Bxe4",
-      "Rc4",
-      "Bd5",
-      "Bf6",
-      "Bxc4",
-      "bxc4",
-      "Rxd6"
-    ],
-    "opening": "Sicilian",
-    "variation": "Najdorf",
-    "openingFen": "r1bqkbnr/pp2pppp/2np4/2p5/4P3/2N2N2/PPPP1PPP/R1BQKB1R",
-    "openingEval": "N/A",
-    "finalFen": "5k1r/5p2/3Rbb2/q7/1Np4p/P3Q3/2P3PP/1K1R4",
-    "white": {
-      "elo": 2785.0,
-      "name": "Anand, Viswanathan"
-    },
-    "black": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "result": "white"
-  },
-  {
-    "movePair": 39,
-    "moves": [
-      "Nf3",
-      "c5",
-      "c4",
-      "Nf6",
-      "Nc3",
-      "e6",
-      "e3",
-      "Nc6",
-      "d4",
-      "d5",
-      "a3",
-      "cxd4",
-      "exd4",
-      "Be7",
-      "c5",
-      "Ne4",
-      "Qc2",
-      "Nxc3",
-      "Qxc3",
-      "a5",
-      "Bb5",
-      "Bd7",
-      "O-O",
-      "O-O",
-      "Bf4",
-      "a4",
-      "Qc2",
-      "Bf6",
-      "Rad1",
-      "Re8",
-      "Rfe1",
-      "Qc8",
-      "Bg5",
-      "Ne7",
-      "Bd3",
-      "Ng6",
-      "Qd2",
-      "Qd8",
-      "Bxg6",
-      "hxg6",
-      "h4",
-      "Be7",
-      "Bxe7",
-      "Rxe7",
-      "Ne5",
-      "Be8",
-      "Qf4",
-      "b6",
-      "Rc1",
-      "bxc5",
-      "Rxc5",
-      "Rb7",
-      "Re2",
-      "f6",
-      "Nd3",
-      "Bf7",
-      "Nb4",
-      "Qb8",
-      "Qe3",
-      "Qd6",
-      "Qc3",
-      "Re8",
-      "Rc6",
-      "Qd7",
-      "Qc5",
-      "e5",
-      "Rd6",
-      "Qg4",
-      "f3",
-      "Qxh4",
-      "Nxd5",
-      "Rxb2",
-      "Rxb2",
-      "Qe1+",
-      "Kh2",
-      "Qh4+",
-      "Kg1"
-    ],
-    "opening": "English Opening - Symmetrical Variation",
-    "variation": "",
-    "openingFen": "rnbqkbnr/pp1ppppp/8/2p5/2P5/5N2/PP1PPPPP/RNBQKB1R",
-    "openingEval": "N/A",
-    "finalFen": "4r1k1/5bp1/3R1pp1/2QNp3/p2P3q/P4P2/1R4P1/6K1",
-    "white": {
-      "elo": 2744.0,
-      "name": "Giri, Anish"
-    },
-    "black": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "result": "draw"
-  },
-  {
-    "movePair": 17,
-    "moves": [
-      "d4",
-      "Nf6",
-      "c4",
-      "g6",
-      "Nc3",
-      "Bg7",
-      "e4",
-      "d6",
-      "Be2",
-      "O-O",
-      "Bg5",
-      "Na6",
-      "Qd2",
-      "e5",
-      "d5",
-      "Qe8",
-      "Bd1",
-      "Nh5",
-      "Nge2",
-      "f5",
-      "f3",
-      "Bd7",
-      "a3",
-      "fxe4",
-      "Nxe4",
-      "Nf4",
-      "O-O",
-      "h6",
-      "Nxf4",
-      "hxg5",
-      "Nd3",
-      "Bf5",
-      "Re1"
-    ],
-    "opening": "King's Indian",
-    "variation": "Averbakh",
-    "openingFen": null,
-    "openingEval": "N/A",
-    "finalFen": "r3qrk1/ppp3b1/n2p2p1/3Ppbp1/2P1N3/P2N1P2/1P1Q2PP/R2BR1K1",
-    "white": {
-      "elo": 2668.0,
-      "name": "Korobov, Anton"
-    },
-    "black": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "result": "white"
-  },
-  {
-    "movePair": 26,
-    "moves": [
-      "d4",
-      "Nf6",
-      "c4",
-      "e6",
-      "Nc3",
-      "Bb4",
-      "Nf3",
-      "d5",
-      "cxd5",
-      "exd5",
-      "Bf4",
-      "c6",
-      "Qc2",
-      "g6",
-      "e3",
-      "Bf5",
-      "Qb3",
-      "Qb6",
-      "Nh4",
-      "Be6",
-      "Bd3",
-      "Nh5",
-      "Be5",
-      "O-O",
-      "g4",
-      "Bxg4",
-      "Rg1",
-      "Be6",
-      "Qc2",
-      "Nd7",
-      "Bxg6",
-      "fxg6",
-      "Nxg6",
-      "Nxe5",
-      "Nxf8+",
-      "Kxf8",
-      "dxe5",
-      "Qc7",
-      "f4",
-      "Qf7",
-      "O-O-O",
-      "Bf5",
-      "Qb3",
-      "a5",
-      "Ne2",
-      "Ng7",
-      "Nd4",
-      "Bc5",
-      "Rg3",
-      "Bxd4",
-      "exd4"
-    ],
-    "opening": "Nimzo-Indian Defense",
-    "variation": "Ragozin Variation",
-    "openingFen": "r1bq1rk1/ppp2ppp/2n1pn2/8/1bpP4/2NBPN2/PP3PPP/R1BQ1RK1",
-    "openingEval": "N/A",
-    "finalFen": "r4k2/1p3qnp/2p5/p2pPb2/3P1P2/1Q4R1/PP5P/2KR4",
-    "white": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "black": {
-      "elo": 2785.0,
-      "name": "Anand, Viswanathan"
-    },
-    "result": "black"
-  },
-  {
-    "movePair": 43,
-    "moves": [
-      "Nf3",
-      "c5",
-      "c4",
-      "Nf6",
-      "g3",
-      "b6",
-      "Bg2",
-      "Bb7",
-      "Nc3",
-      "g6",
-      "O-O",
-      "Bg7",
-      "d4",
-      "cxd4",
-      "Nxd4",
-      "Bxg2",
-      "Kxg2",
-      "Qc8",
-      "b3",
-      "Qb7+",
-      "f3",
-      "d5",
-      "cxd5",
-      "Nxd5",
-      "Nxd5",
-      "Qxd5",
-      "Be3",
-      "Nc6",
-      "Nxc6",
-      "Qxc6",
-      "Rc1",
-      "Qe6",
-      "Qd3",
-      "O-O",
-      "Rfd1",
-      "h5",
-      "Bf2",
-      "Bf6",
-      "Qc4",
-      "Qxc4",
-      "Rxc4",
-      "Rfd8",
-      "Rxd8+",
-      "Rxd8",
-      "Rc7",
-      "a5",
-      "Be3",
-      "Rd6",
-      "Rb7",
-      "Bd4",
-      "Bxd4",
-      "Rxd4",
-      "Kf2",
-      "a4",
-      "Rxb6",
-      "Rd2",
-      "bxa4",
-      "Rxa2",
-      "Rb4",
-      "Ra3",
-      "h4",
-      "Kg7",
-      "Ke1",
-      "Ra2",
-      "Kf2",
-      "Ra3",
-      "Re4",
-      "Kf6",
-      "Rf4+",
-      "Ke6",
-      "g4",
-      "hxg4",
-      "fxg4",
-      "f6",
-      "h5",
-      "gxh5",
-      "gxh5",
-      "Rh3",
-      "a5",
-      "Ra3",
-      "h6",
-      "Rxa5",
-      "Rh4",
-      "Ra8",
-      "Ke3",
-      "Ke5"
-    ],
-    "opening": "English Opening - Symmetrical Variation",
-    "variation": "",
-    "openingFen": "rnbqkbnr/pp1ppppp/8/2p5/2P5/5N2/PP1PPPPP/RNBQKB1R",
-    "openingEval": "N/A",
-    "finalFen": "r7/4p3/5p1P/4k3/7R/4K3/4P3/8",
-    "white": {
-      "elo": 2801.0,
-      "name": "Kasparov, Garry"
-    },
-    "black": {
-      "elo": 2794.0,
-      "name": "Vachier-Lagrave, Maxime"
-    },
-    "result": "black"
+// ─ Helper Functions ─────────────────────────────────────────────────────────────────────────────
+const NO_MOVES_MSG = "No moves available.";
+
+/**
+ * Generates a shareable URL for the current opening and variation
+ */
+const generateShareableURL = (opening?: string, variation?: string): string => {
+  const url = new URL(window.location.origin + window.location.pathname);
+  const params = new URLSearchParams();
+
+  if (opening) {
+    params.set('opening', encodeURIComponent(opening));
   }
-]
+  if (variation) {
+    params.set('variation', encodeURIComponent(variation));
+  }
 
+  return url.toString() + (params.toString() ? '?' + params.toString() : '');
+};
+
+/**
+ * Opening component displays the chess opening explorer page with search, dropdown, and board.
+ */
 const Opening = () => {
-  const [search, setSearch] = useState("");
-  const [selectedVariation, setSelectedVariation] = useState("");
+  const [openingSearchInput, setOpeningSearchInput] = useState<string>("");
+  const [variationSearch, setVariationSearch] = useState<string>("");
+  const { openings, fetchOpenings, isLoading } = useOpenings();
 
-  const filtered = search.trim() === "" ? [] : TESTCASE.filter(
-    (game) =>
-      game.opening.toLowerCase().includes(search.toLowerCase()) ||
-      game.variation.toLowerCase().includes(search.toLowerCase())
+  // Debounce search input for better performance
+  const debouncedOpeningSearch = useDebounce(openingSearchInput, 300);
+
+  // Initialize from URL parameters on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const openingParam = urlParams.get('opening');
+    const variationParam = urlParams.get('variation');
+
+    if (openingParam) {
+      try {
+        setOpeningSearchInput(decodeURIComponent(openingParam));
+      } catch (err) {
+        console.warn('Invalid opening parameter in URL:', err, openingParam);
+      }
+    }
+    if (variationParam) {
+      try {
+        setVariationSearch(decodeURIComponent(variationParam));
+      } catch (err) {
+        console.warn('Invalid variation parameter in URL: ', err, variationParam);
+      }
+    }
+  }, []);
+
+  // Fetch openings on mount
+  useEffect(() => {
+    fetchOpenings();
+  }, [fetchOpenings]);
+
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const openingParam = urlParams.get('opening');
+      const variationParam = urlParams.get('variation');
+
+      if (openingParam) {
+        try {
+          setOpeningSearchInput(decodeURIComponent(openingParam));
+        } catch (error) {
+          console.warn('Invalid opening parameter in URL:', openingParam);
+        }
+      } else {
+        setOpeningSearchInput("");
+      }
+
+      if (variationParam) {
+        try {
+          setVariationSearch(decodeURIComponent(variationParam));
+        } catch (error) {
+          console.warn('Invalid variation parameter in URL:', variationParam);
+        }
+      } else {
+        setVariationSearch("");
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Memoize filtered openings based on search
+  const filteredOpenings = useMemo(() => {
+    if (!debouncedOpeningSearch.trim()) { return openings; }
+
+    const searchTerm = debouncedOpeningSearch.toLowerCase();
+    return openings.filter(opening =>
+      opening.opening.toLowerCase().includes(searchTerm)
+    );
+  }, [openings, debouncedOpeningSearch]);
+
+  // Get the first matching opening or exact match
+  const selectedOpening = useMemo(() => {
+    if (!debouncedOpeningSearch.trim()) { return null; }
+
+    // Try exact match first
+    const exactMatch = filteredOpenings.find(opening =>
+      opening.opening.toLowerCase() === debouncedOpeningSearch.toLowerCase()
+    );
+
+    // Fall back to first filtered result
+    return exactMatch || filteredOpenings[0] || null;
+  }, [filteredOpenings, debouncedOpeningSearch]);
+
+  // Memoize variation options
+  const variationOptions = useMemo(() =>
+    selectedOpening?.variations.map(variation => variation.variation) || [],
+    [selectedOpening]
   );
 
-  const selectedGame = selectedVariation
-    ? filtered.find(game => game.variation === selectedVariation)
-    : filtered[0];
+  // Auto-select first variation when opening changes
+  useEffect(() => {
+    if (variationOptions.length > 0 && !variationOptions.includes(variationSearch)) {
+      setVariationSearch(variationOptions[0]);
+    } else if (variationOptions.length === 0) {
+      setVariationSearch("");
+    }
+  }, [variationOptions, variationSearch]);
 
-  const currentFen = selectedGame?.openingFen || "";
+  // Update URL when opening or variation changes
+  useEffect(() => {
+    const updateURL = () => {
+      const url = new URL(window.location.href);
+      const params = new URLSearchParams(url.search);
+
+      if (selectedOpening?.opening) {
+        params.set('opening', encodeURIComponent(selectedOpening.opening));
+      } else {
+        params.delete('opening');
+      }
+
+      if (variationSearch && selectedOpening) {
+        params.set('variation', encodeURIComponent(variationSearch));
+      } else {
+        params.delete('variation');
+      }
+
+      const newUrl = `${url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+
+      // Only update if URL actually changed to avoid unnecessary history entries
+      if (newUrl !== window.location.pathname + window.location.search) {
+        window.history.replaceState({}, '', newUrl);
+      }
+    };
+
+    // Small delay to avoid updating URL during rapid changes
+    const timeoutId = setTimeout(updateURL, 100);
+    return () => clearTimeout(timeoutId);
+  }, [selectedOpening, variationSearch]);
+
+  // Memoize selected variation data
+  const openingData = useMemo(() =>
+    selectedOpening?.variations.find(variation => variation.variation === variationSearch),
+    [selectedOpening, variationSearch]
+  );
+
+  // Optimized search handlers
+  const handleOpeningSearch = useCallback((value: string) => {
+    setOpeningSearchInput(value);
+    // Don't reset variation immediately - let the effect handle it
+    // This prevents clearing variation when user is typing
+  }, []);
+
+  const handleVariationSearch = useCallback((value: string) => {
+    setVariationSearch(value);
+  }, []);
+
+  // Memoize derived UI values for performance
+  const uiData = useMemo(() => {
+    const selectedVariation = openingData;
+    const currentFen = selectedVariation?.fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+    const movesContent = selectedVariation?.openingMoves.length ?
+      selectedVariation.openingMoves.map((move: string, index: number) => (
+        <span key={`${move}-${index}`} className="px-2 py-1 bg-white/20 rounded text-sm text-nowrap">
+          {move}
+        </span>
+      )) :
+      <span className="text-gray-400">{NO_MOVES_MSG}</span>;
+
+    return {
+      selectedVariation,
+      currentFen,
+      movesContent,
+      evaluation: selectedVariation?.openingEval ?? 0
+    };
+  }, [openingData]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <MainContainer>
+        <Title text={CONTENT.title} icon={<ReportIcon />} />
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="text-gray-400 text-lg">Loading openings...</div>
+        </div>
+      </MainContainer>
+    );
+  }
 
   return (
     <MainContainer>
-      <Title>
-        {CONTENT.title}
-        <img src="report.svg" alt="" className={cn("inline-block w-8 h-8 ml-5")} draggable={false} />
-      </Title>
+      <Title text={CONTENT.title} icon={<ReportIcon />} />
 
-      <div className="flex flex-col w-full h-full gap-5 p-2 lg:grid lg:grid-cols-5 lg:gap-5">
-        <div className="flex flex-col gap-4 lg:col-span-2">
-          <div className="flex flex-row gap-3 items-center">
-            <InputField
-              placeholder="Search openings..."
-              value={search || ''}
-              onAction={setSearch}
-              datalistOptions={TESTCASE.map(game => game.opening)}
-            />
-            <Dropdown
-              options={Array.from(
-                new Set(filtered.map(game => game.variation).filter(Boolean))
-              ).map(variation => ({ value: variation, label: variation }))}
-              onSelect={setSelectedVariation}
-            />
+      <div className="w-full h-full grid gap-5 grid-cols-1 lg:grid-cols-3 lg:gap-5">
+
+        {/* -- Left Column: Controls, Moves, Board -- */}
+        <div className="lg:col-span-1 flex flex-col justify-between items-center gap-2">
+
+          {/* Controls */}
+          <div className="flex flex-col gap-2 w-full max-w-md">
+            <div className="flex flex-row gap-3 w-full">
+              <InputField
+                placeholder="Search openings..."
+                value={openingSearchInput}
+                onAction={handleOpeningSearch}
+              />
+              <Dropdown
+                options={variationOptions}
+                value={variationSearch}
+                onSelect={handleVariationSearch}
+                disabled={variationOptions.length === 0}
+              />
+            </div>
+
           </div>
-          <div className="w-full aspect-square max-w-[500px] mx-auto flex items-center justify-center bg-white/10 rounded-lg shadow">
-            <Chessboard
-              options={{
-                position: currentFen,
-                allowDragging: false,
-                allowDrawingArrows: false,
-                boardStyle: { width: '100%', height: '100%' },
-              }}
-            />
+
+          {/* Moves */}
+          <div className="w-full max-w-md flex flex-nowrap items-center gap-2 min-h-[2.5rem] overflow-y-hidden scrollbar-thin">
+            {uiData.movesContent}
           </div>
+
+          {/* Board and Eval Bar */}
+          <div className="flex flex-row items-center justify-center w-fit mx-auto gap-2 max-w-full">
+            <div className="h-[min(80vw,360px)] w-7 flex-shrink-0">
+              <EvalBar evaluation={uiData.evaluation} />
+            </div>
+            <div className="aspect-square w-[min(80vw,360px)] rounded-lg overflow-hidden shadow-lg">
+              <Chessboard
+                options={{
+                  position: uiData.currentFen,
+                  arePiecesDraggable: false,
+                  boardWidth: 360,
+                  customBoardStyle: {
+                    borderRadius: '8px',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)'
+                  }
+                }}
+              />
+            </div>
+          </div>
+
         </div>
-        <div className="lg:col-span-3 flex flex-col h-full flex-1 min-h-0 overflow-y-auto bg-white/15 rounded-lg ring-1 p-2">
-          <InfoDisplay data={filtered} />
+
+        {/* -- Right Column: Info Display -- */}
+        <div className="flex flex-col h-full w-full min-w-fit min-h-0 bg-white/10 rounded-lg shadow-md ring-1 ring-black/5 col-span-2">
+          <InfoDisplay variation={uiData.selectedVariation} />
         </div>
+
       </div>
     </MainContainer>
-  )
+  );
 };
 
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
 export default Opening; 

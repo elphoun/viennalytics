@@ -1,3 +1,4 @@
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 import { FaDiscord, FaGithub, FaInstagram } from "react-icons/fa";
 
 import MainContainer from "../components/containers/MainContainer";
@@ -5,6 +6,7 @@ import BigTitle from "../components/Text/BigTitle";
 import Subtitle from "../components/Text/Subtitle";
 import { cn } from "../components/utils";
 
+// ─ Constants ────────────────────────────────────────────────────────────────────────────────────
 const CONTENT = {
   home: {
     title: "Viennalytics",
@@ -16,15 +18,16 @@ const CONTENT = {
   }
 };
 
+// ─ Helper Functions ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Homepage component displays the main landing page with title, subtitle, and social links.
+ */
 const Homepage = () => (
   <MainContainer>
     <div className={cn("flex flex-col items-center justify-center flex-1 w-full h-full min-h-0 gap-3 text-center select-none animate-slideIn")}>
-      <BigTitle>
-        {CONTENT.home.title}
-      </BigTitle>
-      <Subtitle>
-        {CONTENT.home.description}
-      </Subtitle>
+      <BigTitle text={CONTENT.home.title} />
+      <Subtitle text={CONTENT.home.description} />
       <hr className={cn("w-full my-5 text-white max-w-1/3")} />
       <div className={cn("flex flex-row items-center justify-between w-1/2 max-w-80 gap-x-4")}>
         <a href="https://github.com/elphoun/viennalytics" aria-label={CONTENT.home.githubAlt}>
@@ -44,4 +47,5 @@ const Homepage = () => (
   </MainContainer>
 );
 
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
 export default Homepage;
