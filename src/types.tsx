@@ -2,7 +2,6 @@
 /** Represents a list of next moves */
 interface NextMoves {
   move: string;
-  count: number;
   fen: string;
   eval: number;
 }
@@ -11,6 +10,8 @@ interface NextMoves {
 interface Variation {
   variation: string,
   openingMoves: string[],
+  fen: string,
+  openingEval: number,
   totalGames: number,
   winPercentageWhite: number,
   winPercentageBlack: number,
@@ -18,9 +19,10 @@ interface Variation {
   averageMoves: number,
   strongestPlayer: string,
   popularNextMoves: NextMoves[],
-  playerElos: Player[],
-  fen: string,
-  openingEval: number,
+  playerElos: Player[]
+  moveList: string[],
+  numMoves: number,
+  topGames: GameDisplay[]
 }
 
 /** Represents an opening */
@@ -34,6 +36,16 @@ type GameDataList = Opening[];
 
 
 // ─ Reports Database ─────────────────────────────────────────────────────────────────────────────
+interface GameDisplay {
+  white: Player,
+  black: Player,
+  result: Result,
+  numMoves: number,
+  event: string,
+  studyName: string,
+  gameURL: string
+}
+
 /** Describes a Chess Game */
 interface Game {
   white: Player,
@@ -45,7 +57,8 @@ interface Game {
   finalFen: string,
   openingEval: string,
   moveList: string[],
-  numMoves: number
+  numMoves: number,
+  topGames: GameDisplay[]
 }
 
 
@@ -69,5 +82,6 @@ export type {
   Opening,
   GameDataList,
   Result,
-  Game
+  Game,
+  GameDisplay,
 }

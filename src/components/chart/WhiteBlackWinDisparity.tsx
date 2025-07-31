@@ -10,7 +10,7 @@ function WhiteBlackWinDisparity() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/OpeningWinrates-UsNGpk8Ols7ANe4Ovf0AMKRGcUzN4q.json');
+        const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/openingWinrates-F6v81U2KqlmCJqkpF0Sfos6R1Ji0hJ.json');
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status}`);
         }

@@ -35,7 +35,7 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = ({ height })
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/ELODistributionByOpening-vydZU4JNkBdKbCmGopeEkOF7Qe6Pf1.json');
+        const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/opening_stats-HhZ7R9MZhDp8lDTskXt1tOHN2rL6Vv.json');
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status}`);
         }

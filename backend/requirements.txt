@@ -1,0 +1,27 @@
+# --- Data Processing and Visualization --- 
+pandas>=1.5.0
+numpy>=1.21.0
+matplotlib>=3.5.0
+
+# --- Chess Specific ---
+stockfish>=3.28.0
+python-chess>=1.999
+
+# --- Progress Tracking ---
+tqdm>=4.64.0
+psutil>=5.9.0
+
+# --- Machine Learning --- 
+scikit-learn>=1.0.0
+
+# --- Built In --- 
+# json 
+# re
+# threading
+# concurrent.futures
+# glob
+# os
+# functools
+# collections
+# time
+# gc

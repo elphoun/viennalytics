@@ -1,133 +1,168 @@
-// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { Chessboard } from "react-chessboard";
+// ─ Imports ────────────────────────────────────────────────────────────────────────────────────────
+import { useCallback, useEffect, useMemo, useState, memo } from "react"
+import { Chessboard } from "react-chessboard"
 
-import InfoDisplay from "./InfoDisplay";
-import MainContainer from "../components/containers/MainContainer";
-import Title from "../components/Text/Title";
-import Button from "../components/ui/Button";
-import Dropdown from "../components/ui/Dropdown";
-import EvalBar from "../components/ui/EvalBar";
-import InputField from "../components/ui/InputField";
-import ReportIcon from "../components/ui/ReportIcon";
-import { useOpenings } from "../context/UseContext";
-import { useDebounce } from "../context/Providers/useDebounce";
+import InfoDisplay from "./InfoDisplay"
+import OpeningSearch from "./OpeningSearch"
+import VariantDropdown from "./VariantDropdown"
+import MainContainer from "../components/containers/MainContainer"
+import Title from "../components/Text/Title"
+import EvalBar from "../components/ui/EvalBar"
+import ReportIcon from "../components/ui/ReportIcon"
+import { useDebounce } from "../context/Providers/useDebounce"
+import { useOpenings } from "../context/UseContext"
 
-// ─ Constants ────────────────────────────────────────────────────────────────────────────────────
+import type { GameDisplay } from "../types"
+
+// ─ Constants ──────────────────────────────────────────────────────────────────────────────────────
 const CONTENT = {
-  title: "Opening Explorer"
+  title: "Opening Explorer",
+  loading: "Loading openings...",
+  moveless: "NO VALID MOVES"
 }
 
-// ─ Helper Functions ─────────────────────────────────────────────────────────────────────────────
-const NO_MOVES_MSG = "No moves available.";
+const DEFAULTFEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
-/**
- * Generates a shareable URL for the current opening and variation
- */
-const generateShareableURL = (opening?: string, variation?: string): string => {
-  const url = new URL(window.location.origin + window.location.pathname);
-  const params = new URLSearchParams();
+// Memoized GameCard component for better performance
+const GameCard = memo(({ game }: { game: GameDisplay }) => {
+  const resultColor = useMemo(() => {
+    switch (game.result) {
+      case 'white': return 'bg-white';
+      case 'black': return 'bg-black';
+      default: return 'bg-gray-400';
+    }
+  }, [game.result]);
 
-  if (opening) {
-    params.set('opening', encodeURIComponent(opening));
-  }
-  if (variation) {
-    params.set('variation', encodeURIComponent(variation));
-  }
+  const resultText = useMemo(() => {
+    switch (game.result) {
+      case 'white': return '1-0';
+      case 'black': return '0-1';
+      default: return '½-½';
+    }
+  }, [game.result]);
 
-  return url.toString() + (params.toString() ? '?' + params.toString() : '');
-};
+  return (
+    <a
+      href={game.gameURL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex-1 bg-white/5 hover:bg-white/10 transition-colors duration-200 rounded-lg p-3 border border-white/10 hover:border-white/20 group block"
+    >
+      <div className="space-y-3">
+        {/* Players */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-center">
+          <div className="flex items-center gap-1 min-w-0">
+            <span className="text-white font-medium truncate">{game.white.name}</span>
+            <span className="text-gray-300 text-sm flex-shrink-0">({game.white.elo})</span>
+          </div>
+          <div className="text-gray-400 text-xs flex-shrink-0">vs</div>
+          <div className="flex items-center gap-1 min-w-0">
+            <span className="text-white font-medium truncate">{game.black.name}</span>
+            <span className="text-gray-300 text-sm flex-shrink-0">({game.black.elo})</span>
+          </div>
+        </div>
 
-/**
- * Opening component displays the chess opening explorer page with search, dropdown, and board.
- */
+        {/* Game Result */}
+        <div className="flex items-center justify-between pt-2 border-t border-white/10">
+          <div className="flex items-center gap-2">
+            <div className={`w-3 h-3 rounded-full flex-shrink-0 ${resultColor}`} />
+            <span className="text-sm text-gray-300">{resultText}</span>
+          </div>
+          <span className="text-xs text-gray-400 flex-shrink-0">{game.numMoves} moves</span>
+        </div>
+
+        {/* Event */}
+        {game.event && (
+          <div className="text-xs text-gray-400 truncate" title={game.event}>
+            {game.event}
+          </div>
+        )}
+
+        {/* External link indicator */}
+        <div className="flex justify-end">
+          <svg className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </div>
+      </div>
+    </a>
+  );
+});
+
+GameCard.displayName = 'GameCard';
+
+/** Opening Displays the Chess Opening Explorer Page */
 const Opening = () => {
-  const [openingSearchInput, setOpeningSearchInput] = useState<string>("");
+  const [openingSearch, setOpeningSearch] = useState<string>("");
   const [variationSearch, setVariationSearch] = useState<string>("");
   const { openings, fetchOpenings, isLoading } = useOpenings();
 
   // Debounce search input for better performance
-  const debouncedOpeningSearch = useDebounce(openingSearchInput, 300);
+  const debouncedOpeningSearch = useDebounce(openingSearch, 300);
 
-  // Initialize from URL parameters on mount
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const openingParam = urlParams.get('opening');
-    const variationParam = urlParams.get('variation');
-
-    if (openingParam) {
-      try {
-        setOpeningSearchInput(decodeURIComponent(openingParam));
-      } catch (err) {
-        console.warn('Invalid opening parameter in URL:', err, openingParam);
-      }
-    }
-    if (variationParam) {
-      try {
-        setVariationSearch(decodeURIComponent(variationParam));
-      } catch (err) {
-        console.warn('Invalid variation parameter in URL: ', err, variationParam);
-      }
-    }
-  }, []);
-
-  // Fetch openings on mount
+  // Fetches Opening on Render
   useEffect(() => {
     fetchOpenings();
-  }, [fetchOpenings]);
+  }, [fetchOpenings])
 
-  // Handle browser back/forward navigation
+  // Direct URL input handling
   useEffect(() => {
-    const handlePopState = () => {
+    const updateStateFromURL = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const openingParam = urlParams.get('opening');
       const variationParam = urlParams.get('variation');
-
-      if (openingParam) {
+      if (openingParam && variationParam) {
         try {
-          setOpeningSearchInput(decodeURIComponent(openingParam));
-        } catch (error) {
-          console.warn('Invalid opening parameter in URL:', openingParam);
+          const decodedOpening = decodeURIComponent(openingParam);
+          const decodedVariation = decodeURIComponent(variationParam);
+          setOpeningSearch(decodedOpening);
+          setVariationSearch(decodedVariation);
+        } catch {
+          setOpeningSearch('');
+          setVariationSearch('');
         }
       } else {
-        setOpeningSearchInput("");
-      }
-
-      if (variationParam) {
-        try {
-          setVariationSearch(decodeURIComponent(variationParam));
-        } catch (error) {
-          console.warn('Invalid variation parameter in URL:', variationParam);
-        }
-      } else {
-        setVariationSearch("");
+        setOpeningSearch('');
+        setVariationSearch('');
       }
     };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    updateStateFromURL();
+    window.addEventListener('popstate', updateStateFromURL);
+    return () => {
+      window.removeEventListener('popstate', updateStateFromURL);
+    };
   }, []);
 
-  // Memoize filtered openings based on search
+  // Memoize filtered openings based on search with early return optimization
   const filteredOpenings = useMemo(() => {
     if (!debouncedOpeningSearch.trim()) { return openings; }
 
     const searchTerm = debouncedOpeningSearch.toLowerCase();
-    return openings.filter(opening =>
-      opening.opening.toLowerCase().includes(searchTerm)
-    );
+    
+    const maxResults = 50;
+
+    // Prioritize exact matches first, then partial matches
+    const exactMatches = [];
+    const partialMatches = [];
+
+    for (let i = 0; i < openings.length && (exactMatches.length + partialMatches.length) < maxResults; i++) {
+      const openingName = openings[i].opening.toLowerCase();
+      if (openingName === searchTerm) {
+        exactMatches.push(openings[i]);
+      } else if (openingName.includes(searchTerm)) {
+        partialMatches.push(openings[i]);
+      }
+    }
+
+    return [...exactMatches, ...partialMatches.slice(0, maxResults - exactMatches.length)];
   }, [openings, debouncedOpeningSearch]);
 
   // Get the first matching opening or exact match
   const selectedOpening = useMemo(() => {
     if (!debouncedOpeningSearch.trim()) { return null; }
-
-    // Try exact match first
     const exactMatch = filteredOpenings.find(opening =>
       opening.opening.toLowerCase() === debouncedOpeningSearch.toLowerCase()
     );
-
-    // Fall back to first filtered result
     return exactMatch || filteredOpenings[0] || null;
   }, [filteredOpenings, debouncedOpeningSearch]);
 
@@ -136,6 +171,46 @@ const Opening = () => {
     selectedOpening?.variations.map(variation => variation.variation) || [],
     [selectedOpening]
   );
+
+  // Update URL when opening or variation changes - optimized to avoid unnecessary updates
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
+      let hasChanges = false;
+
+      const currentOpening = params.get('opening');
+      const currentVariation = params.get('variation');
+
+      const newOpening = selectedOpening?.opening ? encodeURIComponent(selectedOpening.opening) : null;
+      const newVariation = variationSearch && selectedOpening ? encodeURIComponent(variationSearch) : null;
+
+      if (currentOpening !== newOpening) {
+        hasChanges = true;
+        if (newOpening) {
+          params.set('opening', newOpening);
+        } else {
+          params.delete('opening');
+        }
+      }
+
+      if (currentVariation !== newVariation) {
+        hasChanges = true;
+        if (newVariation) {
+          params.set('variation', newVariation);
+        } else {
+          params.delete('variation');
+        }
+      }
+
+      if (hasChanges) {
+        const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+        window.history.replaceState({}, '', newUrl);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [selectedOpening?.opening, variationSearch]);
 
   // Auto-select first variation when opening changes
   useEffect(() => {
@@ -146,36 +221,15 @@ const Opening = () => {
     }
   }, [variationOptions, variationSearch]);
 
-  // Update URL when opening or variation changes
-  useEffect(() => {
-    const updateURL = () => {
-      const url = new URL(window.location.href);
-      const params = new URLSearchParams(url.search);
+  // Opening search handler
+  const handleOpeningSearch = useCallback((value: string) => {
+    setOpeningSearch(value);
+  }, [])
 
-      if (selectedOpening?.opening) {
-        params.set('opening', encodeURIComponent(selectedOpening.opening));
-      } else {
-        params.delete('opening');
-      }
-
-      if (variationSearch && selectedOpening) {
-        params.set('variation', encodeURIComponent(variationSearch));
-      } else {
-        params.delete('variation');
-      }
-
-      const newUrl = `${url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
-
-      // Only update if URL actually changed to avoid unnecessary history entries
-      if (newUrl !== window.location.pathname + window.location.search) {
-        window.history.replaceState({}, '', newUrl);
-      }
-    };
-
-    // Small delay to avoid updating URL during rapid changes
-    const timeoutId = setTimeout(updateURL, 100);
-    return () => clearTimeout(timeoutId);
-  }, [selectedOpening, variationSearch]);
+  // Variation select handler
+  const handleVariationSearch = useCallback((value: string) => {
+    setVariationSearch(value);
+  }, []);
 
   // Memoize selected variation data
   const openingData = useMemo(() =>
@@ -183,37 +237,37 @@ const Opening = () => {
     [selectedOpening, variationSearch]
   );
 
-  // Optimized search handlers
-  const handleOpeningSearch = useCallback((value: string) => {
-    setOpeningSearchInput(value);
-    // Don't reset variation immediately - let the effect handle it
-    // This prevents clearing variation when user is typing
-  }, []);
+  // Memoize moves rendering separately to avoid re-rendering when only eval changes
+  const contentMoves = useMemo(() => {
+    if (!openingData?.openingMoves?.length) {
+      return <span className="text-gray-400">{CONTENT.moveless}</span>;
+    }
 
-  const handleVariationSearch = useCallback((value: string) => {
-    setVariationSearch(value);
-  }, []);
+    return openingData.openingMoves.map((move: string, index: number) => (
+      // eslint-disable-next-line react/no-array-index-key
+      <span key={`${move}-${index}`} className="px-2 py-1 bg-white/20 rounded text-sm text-nowrap">
+        {move}
+      </span>
+    ));
+  }, [openingData?.openingMoves]);
 
-  // Memoize derived UI values for performance
-  const uiData = useMemo(() => {
-    const selectedVariation = openingData;
-    const currentFen = selectedVariation?.fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  // Display Data - split into separate memos for better granular updates
+  const contentFEN = useMemo(() => openingData?.fen || DEFAULTFEN, [openingData?.fen]);
+  const contentEval = useMemo(() => openingData?.openingEval ?? 0, [openingData?.openingEval]);
 
-    const movesContent = selectedVariation?.openingMoves.length ?
-      selectedVariation.openingMoves.map((move: string, index: number) => (
-        <span key={`${move}-${index}`} className="px-2 py-1 bg-white/20 rounded text-sm text-nowrap">
-          {move}
-        </span>
-      )) :
-      <span className="text-gray-400">{NO_MOVES_MSG}</span>;
+  // Memoize chessboard options to prevent unnecessary re-renders
+  const chessboardOptions = useMemo(() => ({
+    position: contentFEN,
+    arePiecesDraggable: false,
+    boardStyle: {
+      borderRadius: '8px',
+      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)'
+    },
+    customBoardStyle: {
+      borderRadius: '8px'
+    }
+  }), [contentFEN]);
 
-    return {
-      selectedVariation,
-      currentFen,
-      movesContent,
-      evaluation: selectedVariation?.openingEval ?? 0
-    };
-  }, [openingData]);
 
   // Show loading state
   if (isLoading) {
@@ -221,7 +275,7 @@ const Opening = () => {
       <MainContainer>
         <Title text={CONTENT.title} icon={<ReportIcon />} />
         <div className="w-full h-full flex items-center justify-center">
-          <div className="text-gray-400 text-lg">Loading openings...</div>
+          <div className="text-gray-400 text-lg">{CONTENT.loading}</div>
         </div>
       </MainContainer>
     );
@@ -230,21 +284,22 @@ const Opening = () => {
   return (
     <MainContainer>
       <Title text={CONTENT.title} icon={<ReportIcon />} />
+      <div className="h-full w-full flex flex-col gap-4 overflow-hidden">
 
-      <div className="w-full h-full grid gap-5 grid-cols-1 lg:grid-cols-3 lg:gap-5">
+        {/* Main Content Area */}
+        <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 min-h-0 p-2">
 
-        {/* -- Left Column: Controls, Moves, Board -- */}
-        <div className="lg:col-span-1 flex flex-col justify-between items-center gap-2">
+          {/* Left Column - Board and Controls */}
+          <div className="flex flex-col gap-2">
 
-          {/* Controls */}
-          <div className="flex flex-col gap-2 w-full max-w-md">
-            <div className="flex flex-row gap-3 w-full">
-              <InputField
+            {/* Search Controls */}
+            <div className="flex flex-row w-full gap-3">
+              <OpeningSearch
                 placeholder="Search openings..."
-                value={openingSearchInput}
+                value={openingSearch}
                 onAction={handleOpeningSearch}
               />
-              <Dropdown
+              <VariantDropdown
                 options={variationOptions}
                 value={variationSearch}
                 onSelect={handleVariationSearch}
@@ -252,44 +307,49 @@ const Opening = () => {
               />
             </div>
 
-          </div>
-
-          {/* Moves */}
-          <div className="w-full max-w-md flex flex-nowrap items-center gap-2 min-h-[2.5rem] overflow-y-hidden scrollbar-thin">
-            {uiData.movesContent}
-          </div>
-
-          {/* Board and Eval Bar */}
-          <div className="flex flex-row items-center justify-center w-fit mx-auto gap-2 max-w-full">
-            <div className="h-[min(80vw,360px)] w-7 flex-shrink-0">
-              <EvalBar evaluation={uiData.evaluation} />
+            {/* Moves Display */}
+            <div className="w-full flex flex-wrap items-center gap-2 min-h-[2.5rem] max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+              {contentMoves}
             </div>
-            <div className="aspect-square w-[min(80vw,360px)] rounded-lg overflow-hidden shadow-lg">
-              <Chessboard
-                options={{
-                  position: uiData.currentFen,
-                  arePiecesDraggable: false,
-                  boardWidth: 360,
-                  customBoardStyle: {
-                    borderRadius: '8px',
-                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)'
-                  }
-                }}
-              />
+
+            {/* Board and Eval Bar */}
+            <div className="flex items-center justify-center gap-3 mx-auto max-w-full">
+              <div className="h-[min(80vw,min(60vh,450px))] xl:h-[min(25vw,400px)] w-6 flex-shrink-0">
+                <EvalBar evaluation={contentEval} />
+              </div>
+              <div className="aspect-square w-[min(80vw,min(60vh,450px))] xl:w-[min(25vw,400px)] rounded-lg overflow-hidden shadow-lg flex-shrink-0">
+                <Chessboard options={chessboardOptions} />
+              </div>
             </div>
           </div>
 
+          {/* Right Column - Info Display */}
+          <div className="xl:col-span-2 flex flex-col min-h-0 bg-white/10 rounded-lg shadow-md ring-1 ring-black/5">
+            <InfoDisplay variation={openingData} />
+          </div>
         </div>
 
-        {/* -- Right Column: Info Display -- */}
-        <div className="flex flex-col h-full w-full min-w-fit min-h-0 bg-white/10 rounded-lg shadow-md ring-1 ring-black/5 col-span-2">
-          <InfoDisplay variation={uiData.selectedVariation} />
+        {/* Bottom Section - Top Games */}
+        <div className="flex-shrink-0 bg-white/10 rounded-lg shadow-md ring-1 ring-black/5 p-4">
+          <h3 className="text-lg font-semibold text-white mb-4">Top Games</h3>
+
+          {openingData?.topGames && openingData.topGames.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 auto-rows-fr">
+              {openingData.topGames.slice(0, 20).map((game) => (
+                <GameCard key={game.gameURL} game={game} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-gray-400 py-8">
+              No games available for this variation
+            </div>
+          )}
         </div>
 
       </div>
     </MainContainer>
-  );
-};
+  )
+}
 
-// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
-export default Opening; 
+// ─ Exports ────────────────────────────────────────────────────────────────────────────────────────
+export default Opening;

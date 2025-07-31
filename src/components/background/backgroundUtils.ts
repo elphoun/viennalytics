@@ -1,8 +1,6 @@
 // ─ Constants ────────────────────────────────────────────────────────────────────────────────────
 
-/**
- * Theme constants for background colors, gradients, and animations.
- */
+/** Theme constants for background colors, gradients, and animations. */
 export const backgroundTheme = {
     colors: {
         primary: "#18CCFC",

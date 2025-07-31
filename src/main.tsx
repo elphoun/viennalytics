@@ -12,9 +12,7 @@ import Report from './report/Report';
 
 // ─ Constants ────────────────────────────────────────────────────────────────────────────────────
 
-/**
- * Main router configuration for the application.
- */
+/** Main router configuration for the application. */
 const router = createBrowserRouter([
   {
     path: "/",
@@ -30,9 +28,7 @@ const router = createBrowserRouter([
 
 // ─ Helper Functions ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Main entry point for the React application. Renders the app with providers and router.
- */
+/** Main entry point for the React application. Renders the app with providers and router. */
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <div className={cn('h-screen w-screen text-white select-none scrollbar-thin')}>

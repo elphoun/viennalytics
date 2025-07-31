@@ -1,48 +1,60 @@
+/* ===== IMPORTS ===== */
 @import url('https://fonts.googleapis.com/css2?family=Electrolize&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Asul:wght@400;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Libertinus+Mono&display=swap');
 @import "tailwindcss";
 @plugin 'tailwind-scrollbar';
 
+/* ===== GLOBAL STYLES ===== */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ===== FONT CLASSES ===== */
 .asul-regular {
-    font-family: "Asul", serif;
-    font-weight: 400;
-    font-style: normal;
+  font-family: "Asul", serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .asul-bold {
-    font-family: "Asul", serif;
-    font-weight: 700;
-    font-style: normal;
+  font-family: "Asul", serif;
+  font-weight: 700;
+  font-style: normal;
 }
 
 .courier-prime-regular {
-    font-family: "Courier Prime", monospace;
-    font-weight: 400;
-    font-style: normal;
+  font-family: "Courier Prime", monospace;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .courier-prime-bold {
-    font-family: "Courier Prime", monospace;
-    font-weight: 700;
-    font-style: normal;
+  font-family: "Courier Prime", monospace;
+  font-weight: 700;
+  font-style: normal;
 }
 
 .courier-prime-regular-italic {
-    font-family: "Courier Prime", monospace;
-    font-weight: 400;
-    font-style: italic;
+  font-family: "Courier Prime", monospace;
+  font-weight: 400;
+  font-style: italic;
 }
 
 .courier-prime-bold-italic {
-    font-family: "Courier Prime", monospace;
-    font-weight: 700;
-    font-style: italic;
+  font-family: "Courier Prime", monospace;
+  font-weight: 700;
+  font-style: italic;
 }
 
 .libertinus-mono-regular {
-    font-family: "Libertinus Mono", monospace;
-    font-weight: 400;
-    font-style: normal;
+  font-family: "Libertinus Mono", monospace;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .electrolize-regular {
@@ -51,7 +63,7 @@
   font-style: normal;
 }
 
-
+/* ===== ANIMATIONS ===== */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -67,17 +79,7 @@
   animation: slideIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Prevent horizontal scrolling globally */
-html, body {
-  overflow-x: hidden;
-  max-width: 100vw;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-/* Custom scrollbar styles */
+/* ===== SCROLLBAR STYLES ===== */
 .scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: #4a4a4a #1a1a1a;
@@ -103,7 +105,7 @@ html, body {
   background-color: #6a6a6a;
 }
 
-/* Responsive chart containers */
+/* ===== RESPONSIVE UTILITIES ===== */
 .chart-container {
   width: 100%;
   max-width: 100%;
@@ -111,7 +113,6 @@ html, body {
   min-width: 0;
 }
 
-/* Ensure all content respects viewport width */
 .responsive-content {
   width: 100%;
   max-width: 100vw;

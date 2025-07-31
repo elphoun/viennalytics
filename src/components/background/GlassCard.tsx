@@ -1,5 +1,5 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
-import React from "react";
+import React, { memo } from "react";
 
 import { cn } from "../utils";
 
@@ -20,20 +20,16 @@ interface GlassCardProps {
  * @param children - Content to display inside the card
  * @param className - Additional CSS classes
  */
-const GlassCard = React.memo(
-  ({ children, className }: GlassCardProps) => {
-    return (
-      <div
-        className={cn(
-          "bg-black/40 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-amber-500/30",
-          className
-        )}
-      >
-        {children}
-      </div>
-    );
-  }
-);
+const GlassCard = memo(({ children, className }: GlassCardProps) => (
+  <div
+    className={cn(
+      "bg-black/40 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-amber-500/30",
+      className
+    )}
+  >
+    {children}
+  </div>
+));
 
 GlassCard.displayName = "GlassCard";
 

@@ -12,7 +12,7 @@ export default function MovePairMatchupAnalysis({ }: MovePairMatchupAnalysisProp
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/WhiteBlackWinrates-hxshcz94wZXNxSAcrM02g3d53JhU2G.json');
+        const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/heatmapMatchup-0XC6wwaB8LiPjeb2CGHzIGDuHUr5Jo.json');
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status}`);
         }
@@ -107,12 +107,12 @@ export default function MovePairMatchupAnalysis({ }: MovePairMatchupAnalysisProp
     const blackAverageValues = blackMoveAverages.map(move => parseFloat(move.average));
 
     const whiteStdDev = Math.sqrt(
-      whiteAverageValues.reduce((sum, val) => sum + Math.pow(val - totalWhiteWinRate, 2), 0) / whiteAverageValues.length
+      whiteAverageValues.reduce((sum, val) => sum + (val - totalWhiteWinRate)**2, 0) / whiteAverageValues.length
     );
 
     const totalBlackAverage = blackAverageValues.reduce((sum, val) => sum + val, 0) / blackAverageValues.length;
     const blackStdDev = Math.sqrt(
-      blackAverageValues.reduce((sum, val) => sum + Math.pow(val - totalBlackAverage, 2), 0) / blackAverageValues.length
+      blackAverageValues.reduce((sum, val) => sum + (val - totalBlackAverage)**2, 0) / blackAverageValues.length
     );
 
     console.log(`White moves standard deviation: ${whiteStdDev.toFixed(2)}%`);

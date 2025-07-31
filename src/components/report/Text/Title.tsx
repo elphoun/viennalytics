@@ -10,7 +10,7 @@ import { cn } from "../utils";
  * @param icon - Optional icon to display next to the title
  */
 const Title = memo(({ text, icon }: TextProps) => (
-    <h1 className={cn("text-white text-3xl asul-bold mb-2 flex items-center gap-5")}> 
+    <h1 className={cn("text-center w-full text-white text-3xl asul-bold mb-6 flex items-center justify-center gap-5")}> 
         {text}
         {icon && <span>{icon}</span>}
     </h1>

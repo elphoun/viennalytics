@@ -20,9 +20,7 @@ const CONTENT = {
 
 // ─ Helper Functions ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Homepage component displays the main landing page with title, subtitle, and social links.
- */
+/** Homepage component displays the main landing page with title, subtitle, and social links. */
 const Homepage = () => (
   <MainContainer>
     <div className={cn("flex flex-col items-center justify-center flex-1 w-full h-full min-h-0 gap-3 text-center select-none animate-slideIn")}>

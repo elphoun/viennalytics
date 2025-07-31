@@ -30,7 +30,7 @@ class ChessOpeningAnalyzer {
     );
     const stds = data[0].map((_, colIndex) => {
       const mean = means[colIndex];
-      const variance = data.reduce((sum, row) => sum + Math.pow(row[colIndex] - mean, 2), 0) / data.length;
+      const variance = data.reduce((sum, row) => sum + (row[colIndex] - mean)**2, 0) / data.length;
       return Math.sqrt(variance);
     });
 
@@ -58,7 +58,7 @@ class ChessOpeningAnalyzer {
 
         centroids.forEach((centroid, clusterIndex) => {
           const distance = point.reduce((sum, val, dim) =>
-            sum + Math.pow(val - centroid[dim], 2), 0
+            sum + (val - centroid[dim])**2, 0
           );
           if (distance < minDistance) {
             minDistance = distance;
@@ -79,7 +79,7 @@ class ChessOpeningAnalyzer {
       // Update centroids
       centroids = centroids.map((_, clusterIndex) => {
         const clusterPoints = data.filter((_, pointIndex) => assignments[pointIndex] === clusterIndex);
-        if (clusterPoints.length === 0) return centroids[clusterIndex];
+        if (clusterPoints.length === 0) {return centroids[clusterIndex];}
 
         return Array.from({ length: dimensions }, (_, dim) =>
           clusterPoints.reduce((sum, point) => sum + point[dim], 0) / clusterPoints.length
@@ -137,11 +137,11 @@ class ChessOpeningAnalyzer {
     });
 
     const getClusterLabel = (white: number, black: number, draw: number): string => {
-      if (draw > 50) return "Draw Heavy";
-      if (white > 70) return "Major White Advantage";
-      if (black > 70) return "Major Black Advantage";
-      if (Math.abs(white - black) < 10) return "Competitive";
-      if (white > black) return "White Advantage";
+      if (draw > 50) {return "Draw Heavy";}
+      if (white > 70) {return "Major White Advantage";}
+      if (black > 70) {return "Major Black Advantage";}
+      if (Math.abs(white - black) < 10) {return "Competitive";}
+      if (white > black) {return "White Advantage";}
       return "Black Advantage";
     };
 
@@ -177,7 +177,7 @@ export default function ChessOpeningClusters() {
         }
         const fetchedData = await response.json();
 
-        if (!isMounted) return;
+        if (!isMounted) {return;}
 
         // Process and clean the data
         const processedData: OpeningData[] = [];
@@ -222,7 +222,7 @@ export default function ChessOpeningClusters() {
   }, []);
 
   const chartData = useMemo(() => {
-    if (!data.length) return null;
+    if (!data.length) {return null;}
 
     const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4'];
     const clusters = Array.from(new Set(data.map(item => item.cluster))).sort();
@@ -258,7 +258,7 @@ export default function ChessOpeningClusters() {
     const annotations = topOpenings.map(opening => ({
       x: opening.pca_x,
       y: opening.pca_y,
-      text: opening.opening.length > 20 ? opening.opening.substring(0, 20) + '...' : opening.opening,
+      text: opening.opening.length > 20 ? `${opening.opening.substring(0, 20)  }...` : opening.opening,
       showarrow: true,
       arrowhead: 2,
       arrowsize: 1,

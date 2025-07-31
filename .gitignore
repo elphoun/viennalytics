@@ -29,6 +29,9 @@ venv
 __pycache__
 .obsidian
 .vscode
+stockfish-windows-x86-64-avx2
+venv
+__pycache__
+data
 
-backend
 .vercel

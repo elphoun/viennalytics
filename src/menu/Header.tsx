@@ -2,7 +2,7 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 
-import GraphIcon from "../components/background/GraphIcon";
+import GraphIcon from "../components/icons/GraphIcon";
 import HeaderLink from "../components/ui/HeaderLink";
 import SearchGlassIcon from '../components/ui/SearchGlassIcon';
 import { cn } from "../components/utils";

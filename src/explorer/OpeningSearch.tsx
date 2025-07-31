@@ -1,10 +1,12 @@
-import React, { FC, useState, useMemo, ChangeEvent } from 'react';
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
+import { ChangeEvent, KeyboardEvent, useMemo, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 
-import { useOpenings } from '../../context/UseContext';
-import { cn } from "../utils";
+import { cn } from "../components/utils";
+import { useOpenings } from "../context/UseContext";
 
-interface InputFieldProps {
+// ─ Interfaces ──────────────────────────────────────────────────────────────────────────────────────
+interface OpeningSearchProps {
   placeholder?: string;
   value: string;
   onAction: (value: string) => void;
@@ -13,22 +15,24 @@ interface InputFieldProps {
   disabled?: boolean;
 }
 
-const InputField: FC<InputFieldProps> = ({
+/** OpeningSearch searches the database for an opening */
+const OpeningSearch = ({
   placeholder = "Enter text...",
   value,
   onAction,
   type = "text",
   className = "",
   disabled = false
-}) => {
+}: OpeningSearchProps) => {
   const { openings } = useOpenings();
   const [temp, setTemp] = useState<string>(value);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
 
+  // List of Options to Display
   const options = useMemo(() => openings.map(opening => opening.opening), [openings]);
 
-
+  // Handle Filter Change
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
     const newValue = ev.target.value;
     setTemp(newValue);
@@ -42,22 +46,26 @@ const InputField: FC<InputFieldProps> = ({
     setShowDropdown(true);
   };
 
+  // Handle Selecting Dropdown Option
   const handleOptionClick = (option: string) => {
     setTemp(option);
     setShowDropdown(false);
     onAction(option);
   };
 
+  // Handle Dropdown Display when Selected
   const handleFocus = () => {
     setFilteredOptions(options);
     setShowDropdown(true);
   };
 
+  // Handle Closing Dropdown when Unfocused
   const handleBlur = () => {
     setTimeout(() => setShowDropdown(false), 300);
   };
 
-  const handleKeyDown = (ev: React.KeyboardEvent<HTMLInputElement>) => {
+  // Handle when Key is pressed on item
+  const handleKeyDown = (ev: KeyboardEvent<HTMLInputElement>) => {
     if (ev.key === 'Enter') {
       onAction(temp);
       setShowDropdown(false);
@@ -66,7 +74,7 @@ const InputField: FC<InputFieldProps> = ({
     }
   };
 
-  const searchAriaLabel = `Search ${placeholder}`;
+  const searchAriaLabel = useMemo(() => `Search ${placeholder}`, [placeholder]);
 
   return (
     <div className="relative">
@@ -80,7 +88,7 @@ const InputField: FC<InputFieldProps> = ({
         placeholder={placeholder}
         disabled={disabled}
         className={cn(
-          "pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 w-full focus:border-transparent transition-colors duration-200 bg-white/10 text-white placeholder-gray-400",
+          "flex-1 pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 w-full focus:border-transparent transition-colors duration-200 bg-white/10 text-white placeholder-gray-400",
           className
         )}
         aria-label={placeholder}
@@ -118,4 +126,4 @@ const InputField: FC<InputFieldProps> = ({
   );
 };
 
-export default InputField; 
+export default OpeningSearch; 

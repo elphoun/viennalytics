@@ -24,7 +24,7 @@ export default function OpeningEvalBoxPlot() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/EloByOpening-UvR61aOt7qIZRQ68EmEABIyH5U1ICw.json');
+        const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/openingUsagebyELO-mp8Bv10TiZ7jhqE1XPb4JQeAMBKi8R.json');
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status}`);
         }

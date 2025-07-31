@@ -2,7 +2,7 @@
 import React from "react";
 import { FaInfoCircle } from "react-icons/fa";
 
-import { cn } from "../utils";
+import { cn } from "../components/utils";
 
 // ─ Helper Functions ─────────────────────────────────────────────────────────────────────────────
 
@@ -47,7 +47,7 @@ const InfoDisplayGrid = ({ title, smallTitle, help, className, children }: InfoD
         </span>
         <FaInfoCircle title={help} className="absolute top-1/2 -translate-y-1/2 right-1.5 cursor-help w-3.5 h-3.5 text-gray-400 hover:text-amber-400 transition-colors flex-shrink-0" />
       </div>
-      <div className="w-full flex-1 flex items-center justify-center p-1 text-center min-h-0">
+      <div className="w-full h-full flex items-center justify-center text-center min-h-0">
         <div className="w-full h-full flex items-center justify-center overflow-hidden">
           {children}
         </div>

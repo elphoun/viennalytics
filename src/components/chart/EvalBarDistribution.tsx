@@ -24,7 +24,7 @@ export default function EvalBarDistribution() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/OpeningEval-FQ3iNEzFnkyqjJmWRd8ydMzcU0ZuCn.json');
+        const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/openingEvalDistribution-zcNUCsOq3UAIfhJyxcC4g5SIcYvk1I.json');
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status}`);
         }

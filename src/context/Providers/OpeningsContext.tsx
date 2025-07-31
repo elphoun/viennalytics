@@ -20,7 +20,7 @@ const OpeningsProvider = ({ children }: PropsWithChildren): ReactElement => {
 
         setIsLoading(true);
         try {
-            const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/opening_stats-kM8TOsMHvgoIS99ZtDIenKyqYlkBjc.json');
+            const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/opening_stats-OR5fWB8eoig58SHErQf5S9kheQgjtk.json');
             if (!response.ok) {
                 throw new Error('Failed to fetch openings data');
             }
