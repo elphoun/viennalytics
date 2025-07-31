@@ -239,7 +239,7 @@ def create_cluster_visualization(results):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 8))
     
     # Main cluster plot
-    colors = plt.cm.Set3(np.linspace(0, 1, results["optimal_clusters"]))
+    colors = plt.cm.Set3(np.linspace(0, 1, results["optimal_clusters"])) # type: ignore
     
     for i, stats in enumerate(cluster_stats):
         cluster_data = df_clustered[df_clustered["cluster"] == i]

@@ -255,7 +255,7 @@ def generate_all_visualization_files(opening_stats):
             save_visualization_data(
                 high_level_summary,
                 "high_level_openings.json",
-                f"Openings popular among high-rated players (ELO >= 2000)"
+                "Openings popular among high-rated players (ELO >= 2000)"
             )
             results['files_generated'].append("high_level_openings.json")
     
