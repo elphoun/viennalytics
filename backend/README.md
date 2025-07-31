@@ -78,5 +78,9 @@ python opening_stats.py
 
 Creates specialized JSON files for different types of visualizations.
 
-# Backend TechStack
+## 🔧 Backend
+**Technologies & Libraries:**
+- **Language:** Python
+- **Libraries:** `pandas`, `numpy`, `matplotlib`, `python-chess`, `tqdm`, `psutil`, `scikit-learn`
+- **Chess Engine:** `Stockfish`
 
