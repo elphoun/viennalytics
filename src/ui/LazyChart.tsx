@@ -1,16 +1,22 @@
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 import { ReactNode, useState, useEffect, useRef } from 'react';
 
+// ─ Types ────────────────────────────────────────────────────────────────────────────────────────
 interface LazyChartProps {
   children: ReactNode;
   fallback?: ReactNode;
   rootMargin?: string;
 }
 
+// ─ Constants ────────────────────────────────────────────────────────────────────────────────────
 const LOADING = "Chart Loading...";
 
 /**
- * LazyChart component that only renders its children when they come into view
- * Uses Intersection Observer API for efficient lazy loading
+ * LazyChart component that only renders its children when they come into view.
+ * Uses Intersection Observer API for efficient lazy loading.
+ * @param children - The content to lazy load
+ * @param fallback - Optional fallback content to show while loading
+ * @param rootMargin - Margin around the root for intersection detection
  */
 const LazyChart = ({ children, fallback, rootMargin = '100px' }: LazyChartProps) => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -34,7 +40,9 @@ const LazyChart = ({ children, fallback, rootMargin = '100px' }: LazyChartProps)
     return () => observer.disconnect();
   }, [rootMargin]);
 
-  if (isVisible) { return children; }
+  if (isVisible) { 
+    return <>{children}</>; 
+  }
 
   return (
     <div ref={ref}>
@@ -47,4 +55,5 @@ const LazyChart = ({ children, fallback, rootMargin = '100px' }: LazyChartProps)
   );
 };
 
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
 export default LazyChart;

@@ -14,6 +14,8 @@ import SearchGlassIcon from "../containers/header/SearchGlassIcon";
 import MainContainer from "../containers/MainContainer";
 import Title from "../containers/Title";
 import KeyTermsSection from "./Text/KeyTermsSection";
+import OpeningEvalSection from "./paragraphs/OpeningEval";
+import MovePairAnalysis from "./paragraphs/MovePairAnalysis";
 
 // ─ Constants ────────────────────────────────────────────────────────────────────────────────────
 
@@ -42,8 +44,8 @@ const Report = memo(() => (
           <MethodologySection />
           <DataOverviewSection />
           <OpeningAnalysisSection />
-          <PerformanceMetricsSection />
-          <StrategicInsightsSection />
+          <OpeningEvalSection />
+          <MovePairAnalysis />
           <ConclusionsSection />
         </div>
       </div>

@@ -10,10 +10,10 @@ import { cn } from "../../utils";
  * @param icon - Optional icon to display next to the SectionHeader
  */
 const SectionHeader = memo(({ text, icon }: TextProps) => (
-    <h3 className={cn("text-lg font-semibold electrolize-regular tracking-wide flex flex-row flex-wrap items-center gap-2 mb-6 drop-shadow-sm")}>
-        {text}
-        {icon && <span>{icon}</span>}
-    </h3>
+  <h3 className={cn("text-white text-lg font-semibold electrolize-regular tracking-wide flex flex-row flex-wrap items-center gap-2 mb-6 drop-shadow-sm")}>
+    {text}
+    {icon && <span>{icon}</span>}
+  </h3>
 ));
 
 SectionHeader.displayName = "SectionHeader";

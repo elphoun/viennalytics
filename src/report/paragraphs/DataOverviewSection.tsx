@@ -1,7 +1,11 @@
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 import { useState, useEffect } from "react";
+
 import DataCard from "../../ui/DataCard";
 import ReportSection from "../ReportSection";
 import Paragraph from "../Text/Paragraph";
+
+// ─ Types ────────────────────────────────────────────────────────────────────────────────────────
 
 interface DatasetSummary {
   total_games: number;
@@ -24,6 +28,10 @@ interface DatasetSummary {
   most_popular_openings: string[];
 };
 
+/**
+ * DataOverviewSection component displays statistical overview of the chess dataset.
+ * Fetches and displays summary statistics including game counts, ELO ranges, and popular openings.
+ */
 const DataOverviewSection = () => {
   const [datasetSummary, setDatasetSummary] = useState<DatasetSummary | undefined>();
 
@@ -35,11 +43,11 @@ const DataOverviewSection = () => {
         const summary = await response.json();
         setDatasetSummary(summary);
       } catch {
-        throw new Error('Unable to fetch data')
+        throw new Error('Unable to fetch data');
       }
     };
     fetchDatasetSummary();
-  }, [])
+  }, []);
 
   return (
     <ReportSection id="data-overview" title="Data Overview" icon="📊">
@@ -149,4 +157,5 @@ const DataOverviewSection = () => {
   );
 };
 
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
 export default DataOverviewSection;

@@ -1,29 +1,24 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
-import { ReactElement, ReactNode } from "react";
+import { memo, PropsWithChildren, ReactNode } from "react";
 
-import { cn } from "../utils";
+import { cn } from "../../utils";
 
 // ─ Types ────────────────────────────────────────────────────────────────────────────────────────
-interface DataCardProps {
-  title: string | ReactElement;
-  children: ReactNode;
+interface TextProps extends PropsWithChildren {
   className?: string;
 }
 
 /**
- * DataCard component renders a styled card with a title and content.
- * @param title - The title to display at the top of the card
- * @param children - The content to display in the card body
- * @param className - Additional CSS classes to apply
+ * Text component for consistent typography styling throughout the report.
+ * @param children - The text content to display
+ * @param className - Optional additional CSS classes
  */
-const DataCard = ({ title, children, className = "" }: DataCardProps) => (
-  <div className={cn("bg-white/5 px-4 py-2 rounded-lg content-scrollbar", className)}>
-    <h3 className="text-md font-semibold text-orange-300 mb-1">{title}</h3>
-    <div className="overflow-auto">
-      {children}
-    </div>
-  </div>
-);
+const Text = memo(({ children, className }: TextProps): ReactNode => (
+  <p className={cn("text-white text-base leading-relaxed mb-4", className)}>
+    {children}
+  </p>
+));
+Text.displayName = "Text";
 
 // ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
-export default DataCard;
+export default Text;

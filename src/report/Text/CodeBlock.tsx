@@ -1,5 +1,9 @@
-import React from 'react';
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
+import { memo } from 'react';
 
+import { cn } from "../../utils";
+
+// ─ Types ────────────────────────────────────────────────────────────────────────────────────────
 interface CodeBlockProps {
   title?: string;
   description?: string;
@@ -7,25 +11,34 @@ interface CodeBlockProps {
   className?: string;
 }
 
-export const CodeBlock: React.FC<CodeBlockProps> = ({ 
+/**
+ * CodeBlock component displays formatted code with optional title and description.
+ * @param title - Optional title to display above the code
+ * @param description - Optional description to display above the code
+ * @param children - The code content to display
+ * @param className - Additional CSS classes to apply
+ */
+const CodeBlock = memo(({ 
   title, 
   description, 
   children, 
   className = "" 
-}) => {
-  return (
-    <div className={`bg-gray-900 border border-gray-700 rounded-lg p-4 font-mono text-sm overflow-x-auto ${className}`}>
-      {description && (
-        <div className="text-gray-400 mb-3">
-          {description}
-        </div>
-      )}
-      {title && (
-        <div className="text-gray-500 mb-2">{title}</div>
-      )}
-      <pre className="text-gray-300">
-        {children}
-      </pre>
-    </div>
-  );
-};
+}: CodeBlockProps) => (
+  <div className={cn("bg-gray-900/80 border border-gray-600/50 rounded-lg p-4 font-mono text-sm overflow-x-auto code-scrollbar", className)}>
+    {description && (
+      <div className="text-gray-300 mb-3 font-medium">
+        {description}
+      </div>
+    )}
+    {title && (
+      <div className="text-orange-300 mb-2 font-semibold">{title}</div>
+    )}
+    <pre className="text-white/90 overflow-x-auto">
+      {children}
+    </pre>
+  </div>
+));
+CodeBlock.displayName = "CodeBlock";
+
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
+export default CodeBlock;

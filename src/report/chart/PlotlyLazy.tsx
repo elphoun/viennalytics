@@ -1,10 +1,13 @@
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 import { lazy, Suspense, CSSProperties } from 'react';
 
+// ─ Lazy Imports ─────────────────────────────────────────────────────────────────────────────────
 // Lazy load the heavy react-plotly.js component
 const PlotlyComponent = lazy(() => 
   import('react-plotly.js').then(module => ({ default: module.default }))
 );
 
+// ─ Types ────────────────────────────────────────────────────────────────────────────────────────
 interface PlotlyLazyProps {
   data: any[];
   layout: any;
@@ -13,6 +16,11 @@ interface PlotlyLazyProps {
   className?: string;
 }
 
+/**
+ * PlotlyLazy component provides lazy loading for Plotly charts.
+ * Shows a loading fallback while the heavy Plotly library loads.
+ * @param props - Plotly component props (data, layout, config, style, className)
+ */
 const PlotlyLazy = (props: PlotlyLazyProps) => (
   <Suspense 
     fallback={
@@ -25,4 +33,5 @@ const PlotlyLazy = (props: PlotlyLazyProps) => (
   </Suspense>
 );
 
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
 export default PlotlyLazy;

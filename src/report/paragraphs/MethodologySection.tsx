@@ -1,29 +1,36 @@
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 /* eslint-disable react/no-unescaped-entities */
 import ReportSection from "../ReportSection";
-import { CodeBlock } from "../Text/CodeBlock";
+import CodeBlock from "../Text/CodeBlock";
 import Highlight from "../Text/Highlight";
 import Hyperlink from "../Text/Hyperlink";
 import Paragraph from "../Text/Paragraph";
 import PromptOnHighlight from "../Text/PromptOnHighlight";
 import Quote from "../Text/Quote";
 
-const MethodologySection = () => {
-  return (
-    <ReportSection id="General Methodology" title="General Methodology" icon="🔬">
-      <Paragraph> There are 2 dedicated file types to displaying Chess information: </Paragraph>
+/**
+ * MethodologySection component explains the data sources and methodology used in the chess analysis.
+ * Includes code examples and explanations of file formats.
+ */
+const MethodologySection = () => (
+  <ReportSection id="General Methodology" title="General Methodology" icon="🔬">
+    <Paragraph className="mb-6">
+      There are 2 dedicated file types to displaying Chess information:
+    </Paragraph>
 
-      <CodeBlock
-        description="ECO (Encyclopedia of Chess Openings) → Contains metadata on various openings and their variations"
-        title="Example ECO format:"
-      >
-        <span className="text-yellow-400">{"{"}</span><br />
-        <span className="text-blue-400 ml-3">"code"</span><span className="text-gray-400">:</span> <span className="text-green-400">"B20"</span><span className="text-gray-400">,</span><br />
-        <span className="text-blue-400 ml-3">"name"</span><span className="text-gray-400">:</span> <span className="text-green-400">"Sicilian Defense"</span><span className="text-gray-400">,</span><br />
-        <span className="text-blue-400 ml-3">"moves"</span><span className="text-gray-400">:</span> <span className="text-green-400">"1.e4 c5"</span><span className="text-gray-400">,</span><br />
-        <span className="text-blue-400 ml-3">"variation"</span><span className="text-gray-400">:</span> <span className="text-green-400">"General"</span><br />
-        <span className="text-yellow-400">{"}"}</span>
-      </CodeBlock>
+    <CodeBlock
+      description="ECO (Encyclopedia of Chess Openings) → Contains metadata on various openings and their variations"
+      title="Example ECO format:"
+    >
+      <span className="text-yellow-400">{"{"}</span><br />
+      <span className="text-blue-400 ml-3">"code"</span><span className="text-gray-400">:</span> <span className="text-green-400">"B20"</span><span className="text-gray-400">,</span><br />
+      <span className="text-blue-400 ml-3">"name"</span><span className="text-gray-400">:</span> <span className="text-green-400">"Sicilian Defense"</span><span className="text-gray-400">,</span><br />
+      <span className="text-blue-400 ml-3">"moves"</span><span className="text-gray-400">:</span> <span className="text-green-400">"1.e4 c5"</span><span className="text-gray-400">,</span><br />
+      <span className="text-blue-400 ml-3">"variation"</span><span className="text-gray-400">:</span> <span className="text-green-400">"General"</span><br />
+      <span className="text-yellow-400">{"}"}</span>
+    </CodeBlock>
 
+    <div className="my-6">
       <CodeBlock
         description="PGN (Portable Game Notation) → Contains metadata about an individual game, including its move sequence in algebraic notation"
         title="Example PGN format:"
@@ -37,10 +44,16 @@ const MethodologySection = () => {
       </CodeBlock>
 
       <Paragraph>
-        Another unique chess tool is a bot known as
-        <Hyperlink link="https://stockfishchess.org/"><Highlight color="bg-green-500/20 text-green-500" text="Stockfish" icon={<span role="img" aria-label="fish">🐟</span>} /></Hyperlink>.
+        Another unique chess tool is a bot known as{' '}
+        <Hyperlink link="https://stockfishchess.org/">
+          <Highlight
+            color="bg-orange-400/20 text-orange-300 border-orange-400/30"
+            text="Stockfish"
+            icon={<span role="img" aria-label="fish">🐟</span>}
+          />
+        </Hyperlink>.
         Stockfish is a bot that analyzes a chess position and provides analysis on the current evaluation and the best next move.
-        While it is primarily used for cheating and giving
+        While it is primarily used for cheating and giving{' '}
         <PromptOnHighlight
           prompt={
             <Quote
@@ -50,14 +63,15 @@ const MethodologySection = () => {
           }
         >
           Magnus Carlsen an inferiority complex
-        </PromptOnHighlight>
-        , I used it in this project to provide further analysis on the final position of the openings.
+        </PromptOnHighlight>,
+        I used it in this project to provide further analysis on the final position of the openings.
       </Paragraph>
 
-      <Paragraph>
-        There are 3 main files I generated for this project.
+      <Paragraph className="my-6">
+        There are 3 main files I generated for this project:
       </Paragraph>
-      <CodeBlock className="mt-4 bg-gray-100 text-gray-900">
+
+      <CodeBlock className="mb-6 text-gray-900">
         <div className="flex items-center mb-2">
           <span className="text-blue-600 mr-2">→</span>
           <span>all_games_info.csv → CSV containing processed PGN data</span>
@@ -74,10 +88,10 @@ const MethodologySection = () => {
 
       <Paragraph>
         There are also a couple of files I used to generate graph specific information (so your poor computer doesn't explode reading this).
-        You can checkout the
+        You can checkout the{' '}
         <Hyperlink link="https://github.com/elphoun/viennalytics">
           <Highlight
-            color="text-white"
+            color="bg-gray-700/30 text-white border-gray-600/40"
             text="Github"
             icon={
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-1 inline-block align-text-bottom">
@@ -85,12 +99,14 @@ const MethodologySection = () => {
               </svg>
             }
           />
-        </Hyperlink>
+        </Hyperlink>{' '}
         in the main page to see the code and some specific details behind the design choices of this project.
         All of this data (and the website) is hosted on Vercel with all of the data stored in blob storage.
       </Paragraph>
-    </ReportSection>
-  );
-};
+    </div>
+  </ReportSection>
+);
 
+
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
 export default MethodologySection;

@@ -1,21 +1,32 @@
- 
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
+import { memo } from "react";
+
+import { cn } from "../../utils";
+
+// ─ Types ────────────────────────────────────────────────────────────────────────────────────────
 interface QuoteProps {
   quote: string;
   author: string;
   className?: string;
 }
 
-const Quote = ({ quote, author, className = "" }: QuoteProps) => {
-  return (
-    <div className={`bg-green-100 border-l-4 border-green-400 p-2 rounded-r-lg max-w-sm ${className}`}>
-      <blockquote className="italic text-green-700/90 text-sm leading-relaxed break-words whitespace-normal">
-        &ldquo;{quote}&rdquo;
-      </blockquote>
-      <cite className="block text-green-600/70 text-xs mt-2">
-        — {author}
-      </cite>
-    </div>
-  );
-};
+/**
+ * Quote component displays a styled blockquote with author attribution.
+ * @param quote - The quote text to display
+ * @param author - The author of the quote
+ * @param className - Additional CSS classes to apply
+ */
+const Quote = memo(({ quote, author, className = "" }: QuoteProps) => (
+  <div className={cn("bg-gray-800/50 border-l-4 border-orange-400 p-3 rounded-r-lg max-w-sm", className)}>
+    <blockquote className="italic text-white/90 text-sm leading-relaxed break-words whitespace-normal">
+      &ldquo;{quote}&rdquo;
+    </blockquote>
+    <cite className="block text-orange-300/80 text-xs mt-2 font-medium">
+      — {author}
+    </cite>
+  </div>
+));
+Quote.displayName = "Quote";
 
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
 export default Quote;

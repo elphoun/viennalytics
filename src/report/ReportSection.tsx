@@ -1,15 +1,35 @@
-import { ReactNode } from "react";
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
+import { ReactNode, MutableRefObject, useEffect } from "react";
 
 import Subtitle from "./Text/Subtitle";
 
+// ─ Types ────────────────────────────────────────────────────────────────────────────────────────
 interface ReportSectionProps {
   id: string;
   title: string;
   icon?: string;
   children: ReactNode;
+  sectionRef?: MutableRefObject<Record<string, HTMLElement | null>>;
 }
 
-const ReportSection = ({ id, title, icon, children }: ReportSectionProps) => {
+/**
+ * ReportSection component renders a section of the report with a title and content.
+ * @param id - Unique identifier for the section
+ * @param title - The section title to display
+ * @param icon - Optional icon to display with the title
+ * @param children - The section content
+ * @param sectionRef - Reference object for section navigation
+ */
+const ReportSection = ({ id, title, icon, children, sectionRef }: ReportSectionProps) => {
+  useEffect(() => {
+    if (sectionRef) {
+      const element = document.getElementById(id);
+      if (element) {
+        sectionRef.current[id] = element;
+      }
+    }
+  }, [id, sectionRef]);
+
   return (
     <section
       id={id}
@@ -23,4 +43,5 @@ const ReportSection = ({ id, title, icon, children }: ReportSectionProps) => {
   );
 };
 
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
 export default ReportSection;

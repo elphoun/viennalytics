@@ -10,7 +10,7 @@ import { cn } from "../../utils";
  * @param icon - Optional icon to display next to the subtitle
  */
 const Subtitle = memo(({ text, icon }: TextProps) => (
-    <h2 className={cn("text-2xl font-bold asul-bold tracking-wide flex flex-row flex-wrap items-center gap-2 drop-shadow-sm")}> 
+    <h2 className={cn("text-white text-2xl font-bold asul-bold tracking-wide flex flex-row flex-wrap items-center gap-2 drop-shadow-sm")}> 
         {text}
         {icon && <span>{icon}</span>}
     </h2>
