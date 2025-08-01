@@ -7,5 +7,23 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss()
-  ]
+  ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split large libraries into separate chunks
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          charts: ['react-plotly.js'],
+          chess: ['react-chessboard'],
+          icons: ['react-icons/ci', 'react-icons/fa'],
+          motion: ['framer-motion']
+        }
+      }
+    }
+  },
+  optimizeDeps: {
+    include: ['react-plotly.js', 'react-chessboard', 'framer-motion']
+  }
 })

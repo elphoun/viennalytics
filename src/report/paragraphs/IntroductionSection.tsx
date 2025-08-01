@@ -1,37 +1,33 @@
-import ReportSection from "../../components/report/ReportSection";
-import Hyperlink from "../../components/Text/Hyperlink";
-import Text from "../../components/Text/Text";
 
-interface IntroductionSectionProps {
-  sectionRefs: React.MutableRefObject<Record<string, HTMLElement | null>>;
-}
+import ChessPieceIcon from "../../icons/ChessPieceIcon";
+import ReportSection from "../ReportSection";
+import Highlight from "../Text/Highlight";
+import Hyperlink from "../Text/Hyperlink";
+import Paragraph from "../Text/Paragraph";
+import PromptOnHighlight from "../Text/PromptOnHighlight";
 
-const IntroductionSection = ({ sectionRefs }: IntroductionSectionProps) => {
-  return (
-    <ReportSection id="introduction" title="Introduction" icon="👋" sectionRef={sectionRefs}>
-      <Text>
-        Chess stands as one of the most enduring and intellectually challenging strategy games in human history.
-        With over 18 million games played daily on
-        <Hyperlink link="https://www.chess.com/home">Chess.com</Hyperlink>
-        alone, the game continues to captivate players across all skill levels, from casual enthusiasts to grandmasters.
-      </Text>
-      <Text>
-        At the heart of every chess game lies the opening - the crucial initial sequence of moves that sets the
-        strategic foundation for the entire match. These opening moves are far more than mere formalities; they
-        represent centuries of accumulated chess wisdom, theoretical development, and strategic innovation.
-      </Text>
-      <Text>
-        This comprehensive analysis examines chess opening performance using data from
-        <Hyperlink link="https://database.lichess.org/#broadcasts">Lichess.org</Hyperlink>
-        , one of the world&apos;s largest online chess platforms. Our research focuses on understanding how different
-        openings influence game outcomes, player performance, and strategic development across various skill levels.
-      </Text>
-      <Text>
-        The primary objectives of this study include analyzing opening success rates, identifying patterns in
-        player preferences, and providing actionable insights for chess improvement at different rating levels.
-      </Text>
-    </ReportSection>
-  );
-};
+const IntroductionSection = () => (
+  <ReportSection id="introduction" title="Introduction" icon="👋">
+    <Paragraph>
+      There are very few strategy games more popular than
+      <Highlight text="Chess" icon={<ChessPieceIcon />} color="bg-green-600/10 border-green-700/30" />.
+      Over 18 million games are played on <Hyperlink link="https://www.chess.com/home">Chess.com</Hyperlink> everyday,
+      and the game appeals to various skill demographics as both a casual pastime and a competitive challenge.
+    </Paragraph>
+    <Paragraph>
+      At the core of each chess game is the <Highlight text="Opening" color="bg-green-600/10 border-green-700/30" />.
+      Openings serve as the “blueprint” of the game, allowing players to take early advantages by controlling the
+      center and increasing their opportunities to trap and capture opposing pieces.
+    </Paragraph>
+    <Paragraph>
+      As a professional
+      {' '}
+      <PromptOnHighlight prompt="Yes ik its not that good stfu" >700{' '}</PromptOnHighlight>
+      ELO player, I conducted an analysis on the
+      <Hyperlink link="https://database.lichess.org/#broadcasts">lichess.com</Hyperlink> dataset to determine how different openings and opening moves impact later phases of the game.
+      I will also discuss how data pertaining to specific players (i.e. ELO, moves) impact the performance of certain openings.
+    </Paragraph>
+  </ReportSection>
+);
 
 export default IntroductionSection;

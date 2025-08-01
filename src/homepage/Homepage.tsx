@@ -1,10 +1,9 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
-import { FaDiscord, FaGithub, FaInstagram } from "react-icons/fa";
-
-import MainContainer from "../components/containers/MainContainer";
-import BigTitle from "../components/Text/BigTitle";
-import Subtitle from "../components/Text/Subtitle";
-import { cn } from "../components/utils";
+import { DiscordIcon, GithubIcon, InstagramIcon } from "../icons/SocialIcons";
+import MainContainer from "../containers/MainContainer";
+import BigTitle from "../report/Text/BigTitle";
+import Subtitle from "../report/Text/Subtitle";
+import { cn } from "../utils";
 
 // ─ Constants ────────────────────────────────────────────────────────────────────────────────────
 const CONTENT = {
@@ -29,16 +28,16 @@ const Homepage = () => (
       <hr className={cn("w-full my-5 text-white max-w-1/3")} />
       <div className={cn("flex flex-row items-center justify-between w-1/2 max-w-80 gap-x-4")}>
         <a href="https://github.com/elphoun/viennalytics" aria-label={CONTENT.home.githubAlt}>
-          <FaGithub className={cn("w-8 h-8 transition-all hover:brightness-50")} />
+          <GithubIcon />
         </a>
         <a href="https://www.uwdatascience.ca/" aria-label={CONTENT.home.dscAlt}>
           <img src="dsc.svg" alt={CONTENT.home.dscAlt} className={cn("h-full transition-all max-h-8 hover:brightness-50")} />
         </a>
         <a href="https://www.instagram.com/uwaterloodsc/" aria-label={CONTENT.home.instagramAlt}>
-          <FaInstagram className={cn("w-8 h-8 transition-all hover:brightness-50")} />
+          <InstagramIcon />
         </a>
         <a href="https://discord.gg/Vj5aVvahKm" aria-label={CONTENT.home.discordAlt}>
-          <FaDiscord className={cn("w-8 h-8 transition-all hover:brightness-50")} />
+          <DiscordIcon />
         </a>
       </div>
     </div>

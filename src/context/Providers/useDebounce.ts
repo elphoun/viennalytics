@@ -1,3 +1,4 @@
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 import { useState, useEffect } from 'react';
 
 /**
@@ -6,7 +7,7 @@ import { useState, useEffect } from 'react';
  * @param delay - Delay in milliseconds
  * @returns The debounced value
  */
-export function useDebounce<T>(value: T, delay: number): T {
+function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {
@@ -20,4 +21,7 @@ export function useDebounce<T>(value: T, delay: number): T {
   }, [value, delay]);
 
   return debouncedValue;
-}
+};
+
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
+export default useDebounce;

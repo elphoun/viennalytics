@@ -1,7 +1,7 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 import { useContext } from "react";
 
-import { GamesContext, OpeningsContext } from "./Context";
+import { OpeningsContext } from "./Context";
 
 /**
  * @description useOpenings returns the OpeningsContext value
@@ -12,17 +12,7 @@ const useOpenings = () => {
     return context;
 };
 
-/**
- * @description useGames returns the OpeningsContext value
- * @throws Error if used outside OpeningsProvider
- */
-const useGames = () => {
-    const context = useContext(GamesContext);
-    return context;
-};
-
 // ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
 export {
-    useOpenings,
-    useGames
+    useOpenings
 }

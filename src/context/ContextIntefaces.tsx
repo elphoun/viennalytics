@@ -1,5 +1,7 @@
-import { Game, GameDataList } from "../types";
+// ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
+import { GameDataList } from "../types";
 
+// ─ Interfaces ───────────────────────────────────────────────────────────────────────────────────
 interface OpeningsContextType {
     openings: GameDataList;
     fetchOpenings: () => Promise<void>;
@@ -7,11 +9,5 @@ interface OpeningsContextType {
     isLoaded: boolean;
 }
 
-interface GamesContextType {
-    games: Game[];
-    fetchGames: () => Promise<void>;
-    isLoading: boolean;
-    isLoaded: boolean;
-}
-
-export type { OpeningsContextType, GamesContextType };
+// ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
+export type { OpeningsContextType };
