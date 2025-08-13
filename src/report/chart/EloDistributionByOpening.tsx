@@ -1,9 +1,11 @@
-import { FC, useEffect, useState, useMemo, memo, useRef } from "react";
 import * as d3 from 'd3';
+import { FC, useEffect, useState, useMemo, memo, useRef } from "react";
+import { CHART_MESSAGES } from './Constants';
 
 interface EloDistributionByOpeningProps {
   binSize?: number;
   height?: number;
+  maxOpenings?: number;
 }
 
 interface DataType {
@@ -14,10 +16,10 @@ interface DataType {
   // ...other fields
 }
 
-const NO_DATA_MSG = "No data";
+const NO_DATA_MSG = CHART_MESSAGES.noData;
 
 /** */
-const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ height }) => {
+const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ height, maxOpenings = 10 }) => {
   const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
@@ -35,19 +37,28 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
     const fetchData = async () => {
       try {
         setLoading(true);
+        console.log('[EloDistributionByOpening] Starting data fetch...');
         const response = await fetch('/backend/data/generated_data/elo_histogram_data.json');
+        console.log('[EloDistributionByOpening] Response status:', response.status);
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status}`);
         }
         const fetchedData = await response.json();
+        console.log('[EloDistributionByOpening] Raw fetched data:', fetchedData);
+        console.log('[EloDistributionByOpening] Data structure:', {
+          bins: Array.isArray(fetchedData?.bins) ? fetchedData.bins.length : 'not array',
+          binLabels: Array.isArray(fetchedData?.binLabels) ? fetchedData.binLabels.length : 'not array',
+          openingCounts: typeof fetchedData?.openingCounts === 'object' ? Object.keys(fetchedData.openingCounts).length : 'not object'
+        });
+        
         if (isMounted) {
           setData(fetchedData);
           setError(null);
         }
       } catch (err) {
+        console.error('[EloDistributionByOpening] Error fetching data:', err);
         if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch data');
-          setData(null);
+          setError(`Failed to load data: ${err instanceof Error ? err.message : 'Unknown error'}`);
         }
       } finally {
         if (isMounted) {
@@ -68,12 +79,16 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
       !data ||
       !Array.isArray(data.binLabels)
     ) {
+      console.log('[EloDistributionByOpening] Chart data is null:', {
+        hasData: !!data,
+        binLabelsIsArray: Array.isArray(data?.binLabels)
+      });
       return { chartData: null, labels: [], maxValue: 0 };
     }
 
     const { binLabels, openingCounts } = data;
 
-    // Get all openings sorted by total count (frequency)
+    // Get all openings sorted by total count (frequency) and limit to maxOpenings
     const allOpenings = Object.entries(openingCounts)
       .map(([opening, counts]) => ({
         opening,
@@ -81,9 +96,11 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
         total: (counts as number[]).reduce((sum, count) => sum + count, 0)
       }))
       .filter(item => item.total > 0)
-      .sort((itemA, itemB) => itemB.total - itemA.total);
+      .sort((itemA, itemB) => itemB.total - itemA.total)
+      .slice(0, maxOpenings);
 
     if (allOpenings.length === 0) {
+      console.log('[EloDistributionByOpening] No valid openings found');
       return { chartData: null, labels: [], maxValue: 0 };
     }
 
@@ -97,28 +114,36 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
     });
 
     // Find max stacked value for scaling
-    const maxStackedValue = Math.max(...stackedData.map(binData => 
+    const maxStackedValue = Math.max(...stackedData.map(binData =>
       binData.reduce((sum, val) => sum + val, 0)
     ));
 
-    return { 
-      chartData: { stackedData, binLabels, openings: allOpenings }, 
+    const result = {
+      chartData: { stackedData, binLabels, openings: allOpenings },
       labels: openingLabels,
       fullLabels: fullOpeningLabels,
       maxValue: maxStackedValue
     };
-  }, [data]);
+    
+    console.log('[EloDistributionByOpening] Chart data processed:', result);
+    return result;
+  }, [data, maxOpenings]);
 
   useEffect(() => {
-    if (!containerRef) { return; }
+    if (!containerRef) { 
+      console.log('[EloDistributionByOpening] Container ref not available');
+      return; 
+    }
 
     const resizeObserver = new ResizeObserver((entries) => {
       const entry = entries[0];
       const { width, height } = entry.contentRect;
-      setDimensions({
-        width: Math.max(width - 8, 200),
-        height: Math.max(height - 8, 100)
-      });
+      const newDimensions = {
+        width: Math.max(width - 8, 800),
+        height: 520
+      };
+      console.log('[EloDistributionByOpening] Setting dimensions:', newDimensions);
+      setDimensions(newDimensions);
     });
 
     resizeObserver.observe(containerRef);
@@ -127,9 +152,20 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
 
   // D3 rendering effect
   useEffect(() => {
+    console.log('[EloDistributionByOpening] D3 render effect triggered:', {
+      hasSvgRef: !!svgRef.current,
+      hasChartData: !!chartData,
+      labelsLength: labels.length,
+      dimensionsWidth: dimensions.width,
+      dimensionsHeight: dimensions.height
+    });
+    
     if (!svgRef.current || !chartData || !labels.length || dimensions.width === 0) {
+      console.log('[EloDistributionByOpening] D3 render skipped - missing requirements');
       return;
     }
+    
+    console.log('[EloDistributionByOpening] Starting D3 render...');
 
     // Openings to show (by default all, or filtered by legend click)
     const shownOpenings = activeOpenings ? Array.from(activeOpenings) : labels;
@@ -137,8 +173,8 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
-    const chartHeight = height || Math.max(dimensions.height, 400);
-    const padding = { top: 30, right: 120, bottom: 80, left: 60 };
+    const chartHeight = height || 520;
+    const padding = { top: 30, right: 20, bottom: 80, left: 60 };
     const chartWidth = dimensions.width - padding.left - padding.right;
     const chartHeightInner = chartHeight - padding.top - padding.bottom;
     const { stackedData, binLabels } = chartData;
@@ -197,12 +233,12 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
       .selectAll('rect')
       .data(binStack => binStack)
       .join('rect')
-      .attr('x', (bin, binIdx) => x(binLabels[binIdx]) ?? 0)
+      .attr('x', (_bin, binIdx) => x(binLabels[binIdx]) ?? 0)
       .attr('y', bin => y(bin[1]))
       .attr('height', bin => y(bin[0]) - y(bin[1]))
       .attr('width', x.bandwidth())
       .style('cursor', 'pointer')
-      .on('mousemove', function(event, bin) {
+      .on('mousemove', (event, bin) => {
         const target = event.currentTarget as SVGRectElement;
         const parent = target.parentNode as SVGGElement | null;
         let openingLabel = '';
@@ -227,10 +263,16 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
       })
       .on('mouseleave', () => setTooltip(null));
 
-    // X axis
+    // X axis with limited labels
+    const maxXLabels = 6; // Show maximum 6 labels
+    const labelStep = Math.ceil(binLabels.length / maxXLabels);
+    
     mainGroup.append('g')
       .attr('transform', `translate(0,${chartHeightInner})`)
-      .call(d3.axisBottom(x).tickFormat((tickLabel) => tickLabel as string))
+      .call(d3.axisBottom(x).tickFormat((tickLabel, i) => {
+        // Show every nth label based on labelStep
+        return i % labelStep === 0 ? tickLabel as string : '';
+      }))
       .selectAll('text')
       .attr('transform', 'rotate(-45)')
       .style('text-anchor', 'end');
@@ -258,12 +300,14 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
       .attr('fill', '#ea580c')
       .attr('font-size', 13)
       .text(yLabel);
+      
+    console.log('[EloDistributionByOpening] D3 render completed successfully');
   }, [chartData, labels, fullLabels, dimensions, height, maxValue, activeOpenings]);
 
   if (loading) {
     return (
       <div className="h-full w-full flex items-center justify-center">
-        <span className="text-gray-400 italic">Loading...</span>
+        <span className="text-gray-400 italic">{CHART_MESSAGES.loading}</span>
       </div>
     );
   }
@@ -271,7 +315,7 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
   if (error) {
     return (
       <div className="h-full w-full flex items-center justify-center">
-        <span className="text-red-400 italic">Error: {error}</span>
+        <span className="text-red-400 italic">{CHART_MESSAGES.error}{error}</span>
       </div>
     );
   }
@@ -287,13 +331,13 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
   if (chartData === null) {
     return (
       <div className="h-full w-full flex items-center justify-center">
-        <span className="text-gray-400 italic">No valid ELO data</span>
+        <span className="text-gray-400 italic">{CHART_MESSAGES.noData}</span>
       </div>
     );
   }
-  const chartHeight = height || Math.max(dimensions.height, 400);
-  const padding = { top: 30, right: 120, bottom: 80, left: 60 };
-  const chartWidth = dimensions.width - padding.left - padding.right;
+  const chartHeight = height || 520;
+  const padding = { top: 30, right: 20, bottom: 80, left: 60 };
+  
   const chartHeightInner = chartHeight - padding.top - padding.bottom;
   const baseColors = [
     '#fb923c', '#f59e0b', '#eab308', '#84cc16', '#22c55e',
@@ -305,7 +349,7 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
   return (
     <div
       ref={setContainerRef}
-      className="h-fit w-full relative"
+      className="w-full h-fit min-h-[520px] relative"
     >
       {dimensions.width > 0 && (
         <div className="min-w-fit" style={{ position: 'relative' }}>
@@ -314,26 +358,26 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
             width={dimensions.width}
             height={chartHeight}
             aria-label="ELO Distribution by Opening Histogram"
-            style={{ display: 'block', width: '100%' }}
+            style={{ display: 'block', width: '100%', border: '3px solid #ea580c', background: '#18181b' }}
           />
-          {/* Scrollable legend as absolutely positioned div */}
+          {/* Legend positioned inside the chart area */}
           <div
             style={{
               position: 'absolute',
-              left: padding.left + chartWidth + 10,
-              top: padding.top,
-              maxHeight: chartHeightInner,
+              right: padding.right + 10,
+              top: padding.top + 10,
+              maxHeight: Math.min(chartHeightInner - 20, 200),
               overflowY: 'auto',
-              width: 180,
-              background: 'rgba(30,41,59,0.97)',
-              borderRadius: 12,
+              width: 160,
+              background: 'rgba(30,41,59,0.95)',
+              borderRadius: 8,
               border: '1px solid #ea580c',
-              boxShadow: '0 2px 8px #0002',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
               zIndex: 5,
-              padding: 8,
+              padding: 6,
               display: 'flex',
               flexDirection: 'column',
-              gap: 4,
+              gap: 2,
             }}
           >
             {labels.map((label, i) => (
@@ -346,9 +390,9 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
                   opacity: !activeOpenings || activeOpenings.has(label) ? 1 : 0.3,
                   cursor: 'pointer',
                   userSelect: 'none',
-                  fontSize: 13,
+                  fontSize: 11,
                   fontFamily: 'inherit',
-                  padding: '2px 0',
+                  padding: '1px 0',
                 }}
                 onClick={() => {
                   setActiveOpenings(prev => {
@@ -361,7 +405,7 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
                     } else {
                       next.add(label);
                     }
-                    if (next.size === 0) return null;
+                    if (next.size === 0) {return null;}
                     return next;
                   });
                 }}
@@ -373,15 +417,16 @@ const EloDistributionByOpening: FC<EloDistributionByOpeningProps> = memo(({ heig
                 <span
                   style={{
                     display: 'inline-block',
-                    width: 14,
-                    height: 14,
-                    borderRadius: 4,
+                    width: 12,
+                    height: 12,
+                    borderRadius: 3,
                     background: colors[i],
                     border: '1px solid #fff3',
-                    marginRight: 4,
+                    marginRight: 6,
+                    flexShrink: 0,
                   }}
                 />
-                <span style={{ color: '#ea580c', fontWeight: 500 }}>{label}</span>
+                <span style={{ color: '#ea580c', fontWeight: 500, fontSize: 11, lineHeight: 1.2 }}>{label}</span>
               </div>
             ))}
           </div>

@@ -30,13 +30,13 @@ const GameCard = memo(({ game }: { game: GameDisplay }) => {
       <div className="space-y-3">
         {/* Players */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-center">
-          <div className="flex items-center gap-1 min-w-0">
-            <span className="text-white font-medium truncate">{game.white.name}</span>
+          <div className="flex items-center gap-1 min-w-0 max-w-full">
+            <span className="text-white font-medium truncate max-w-[120px] sm:max-w-none">{game.white.name}</span>
             <span className="text-gray-300 text-sm flex-shrink-0">({game.white.elo})</span>
           </div>
           <div className="text-gray-400 text-xs flex-shrink-0">vs</div>
-          <div className="flex items-center gap-1 min-w-0">
-            <span className="text-white font-medium truncate">{game.black.name}</span>
+          <div className="flex items-center gap-1 min-w-0 max-w-full">
+            <span className="text-white font-medium truncate max-w-[120px] sm:max-w-none">{game.black.name}</span>
             <span className="text-gray-300 text-sm flex-shrink-0">({game.black.elo})</span>
           </div>
         </div>

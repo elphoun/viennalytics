@@ -1,63 +1,144 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
-import { memo } from "react";
+import { memo, ReactNode } from "react";
 
 import Paragraph from "./Paragraph";
 import DataCard from "../../ui/DataCard";
+import ImageDisplay from "../../ui/ImageDisplay";
+import Table from "../../ui/Table";
 import ReportSection from "../ReportSection";
 
-// ─ Constants ────────────────────────────────────────────────────────────────────────────────────
-const pieceTable = [
-  { piece: 'Pawn', symbol: '♙', value: '100' },
-  { piece: 'Knight', symbol: '♘', value: '300' },
-  { piece: 'Bishop', symbol: '♗', value: '300' },
-  { piece: 'Rook', symbol: '♖', value: '500' },
-  { piece: 'Queen', symbol: '♕', value: '900' },
-  { piece: 'King', symbol: '♔', value: '∞' },
-];
+// ─ Types ────────────────────────────────────────────────────────────────────────────────────────
+interface KeyTerm {
+  term: string;
+  definition: ReactNode;
+  content?: ReactNode;
+}
 
-const keyTerms = [
+// ─ Constants ────────────────────────────────────────────────────────────────────────────────────
+const keyTerms: KeyTerm[] = [
   {
-    term: 'Opening',
-    definition: 'The first phase of the chess game, starting from the very first move and ends at an arbitrary point where the midgame starts.'
+    term: "Opening",
+    definition: (
+      <Paragraph>
+        The first phase of the chess game. It starts from the very first move and ends at an arbitrary point where the general <b>book move</b> ends and the diverging midgame starts.
+      </Paragraph>
+    ),
+    content: (
+      <ImageDisplay
+        src="./vienna.png"
+        caption={
+          <>
+            The Vienna Game
+            <br />
+            (1. e4 e5 2. c3)
+          </>
+        }
+        className="max-w-50"
+      />
+    ),
   },
   {
-    term: 'Defense',
-    definition: 'A defense refers to the moves that black makes to try and counter white\'s offense.'
+    term: "Defense",
+    definition: (
+      <Paragraph>
+        Equivalent to the opening but from black’s perspective and typically indicates that black made the “commanding move”. For the purposes of this report these terms will be grouped as just “openings”.
+      </Paragraph>
+    ),
+    content: (
+      <ImageDisplay
+        src="./caro-kann.png"
+        caption={
+          <>
+            Caro-Kann Defense
+            <br />
+            (1. e4 c6)
+          </>
+        }
+        className="max-w-50"
+      />
+    ),
   },
   {
-    term: 'Variation',
-    definition: 'A specific deviation in an opening or defense. Typically named after either the move sequence or someone who pioneered the variant.'
+    term: "Variation",
+    definition: (
+      <Paragraph>
+        A specific branch/deviation in an opening after the core portion has been played.
+      </Paragraph>
+    ),
+    content: (
+      <div className="flex flex-row gap-10">
+        <ImageDisplay
+          src="./caro-kann-exchange.png"
+          caption={
+            <>
+              Caro-Kann: Exchange Variation
+              <br />
+              (1. e4 c6, 2. d4 d5 3.exd5)
+            </>
+          }
+          className="max-w-50"
+        />
+        <ImageDisplay
+          src="./caro-kann-advance.png"
+          caption={
+            <>
+              Caro-Kann: Advance Variation
+              <br />
+              (1. e4 c6 2. d4 d5 3. e5)
+            </>
+          }
+          className="max-w-50"
+        />
+      </div>
+    ),
   },
   {
-    term: 'ELO',
-    definition: 'A numerical rating of a chess player\'s skill relative to other players. High ELO indicates a stronger player. The global average ELO is approximately 600 to 700.'
-  },
-  {
-    term: 'Evaluation',
-    definition: 'A tool which calculates which side is favored in a match. Positive values indicate that white is winning, and negative values indicate that black is winning.',
-    table: (
-      <div className="overflow-x-auto data-scrollbar">
-        <table className="w-full text-blue-100 text-xs border-separate border-spacing-y-1 mt-2">
-          <thead>
-            <tr className="text-blue-300">
-              <th className="text-left font-bold pb-1">Piece</th>
-              <th className="text-left font-bold pb-1">Centipawns (approximate)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pieceTable.map(({ piece, symbol, value }) => (
-              <tr key={piece}>
-                <td className="py-0.5 pr-2 font-semibold flex items-center gap-1">
-                  <span className="text-lg">{symbol}</span> {piece}
-                </td>
-                <td className="py-0.5">{value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    term: "ELO",
+    definition: (
+      <Paragraph>
+        A numerical rating of a chess player’s skill relative to other players. Higher ELO indicates a stronger player. The global average ELO is approximately <b>600</b> to <b>700</b>.
+      </Paragraph>
+    ),
+  }, {
+    term: "FEN (Forsyth-Edwards Notation)",
+    definition: (
+      <div className="flex flex-col gap-4">
+        <Paragraph>
+          Used to describe a current chess position using a single line of text. It includes:
+        </Paragraph>
+        <Table
+          rows={[
+            { field: "Board Position", value: "rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR" },
+            { field: "Active Color", value: "b" },
+            { field: "Castling Rights", value: "KQkq" },
+            { field: "En Passant", value: "-" },
+            { field: "Half-move Clock", value: "1" },
+            { field: "Full-move Number", value: "2" }
+          ]}
+        />
       </div>
     )
-  },
+  }, {
+    term: "Evaluation",
+    definition: (
+      <div className="flex flex-col gap-4">
+        <Paragraph>
+        A tool which calculates which side is favored in a match. Positive values indicate that white is winning, and negative values indicate that black is winning. 
+        Evaluations are measured in <b>centipawns</b> (1 pawn = 100 centipawns). Below is a table containing all of the conversions for each piece. 
+        </Paragraph>
+        <Table
+          rows={[
+            { field: "Pawn (♙)", value: "100" },
+            { field: "Knight (♘)", value: "300" },
+            { field: "Bishop (♗)", value: "300" },
+            { field: "Rook (♖)", value: "500" },
+            { field: "Queen (♕)", value: "900" },
+            { field: "King (♔)", value: "Infinite (Checkmate)" }
+          ]}
+        />
+      </div>
+    )
+  }
 ];
 
 /**
@@ -66,17 +147,15 @@ const keyTerms = [
  */
 const KeyTermsSection = memo(() => (
   <ReportSection id="key-terms" title="Key Terms" icon="📚">
-    <div className="flex flex-col gap-4">
-      {keyTerms.map(({ term, definition, table }) => (
+    <div className="flex flex-col gap-4 ">
+      {keyTerms.map(({ term, definition, content }: KeyTerm) => (
         <DataCard
           key={term}
-          title={<span className="text-blue-100 font-bold text-sm tracking-wide drop-shadow-sm">{term}</span>}
-          className="bg-gradient-to-br from-gray-950/50 to-gray-900/90 border border-blue-400/30 shadow-md px-2 py-1 rounded-md hover:scale-[1.01] hover:border-blue-300/60 transition-all duration-200 min-h-0"
+          title={<span className="text-blue-100 font-bold tracking-wide drop-shadow-sm">{term}</span>}
+          className="bg-gradient-to-br from-gray-950/50 to-gray-900/90 border border-blue-400/30 hover:scale-[1.01] hover:border-blue-300/60 min-h-fit flex-1"
         >
-          <Paragraph className="text-blue-200 text-xs leading-snug font-medium mb-0.5">
-            {definition}
-          </Paragraph>
-          {table && <div className="mt-1">{table}</div>}
+          <div className="text-blue-200">{definition}</div>
+          {content && <div className="mt-4 flex items-center justify-center">{content}</div>}
         </DataCard>
       ))}
     </div>

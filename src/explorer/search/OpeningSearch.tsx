@@ -1,7 +1,7 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 import { ChangeEvent, KeyboardEvent, useMemo, useState } from "react";
 
-import { useOpenings } from "../../context/UseContext";
+import { useOpenings } from "../../context/useContext";
 import SearchIcon from "../../icons/SearchIcon";
 import { cn } from "../../utils";
 

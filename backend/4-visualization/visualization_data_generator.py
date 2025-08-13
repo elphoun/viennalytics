@@ -30,6 +30,7 @@ def load_opening_stats_data():
     """
     possible_paths = [
         "data/generated_data/opening_stats.json",
+        r"C:\Users\kalem\OneDrive\Desktop\viennalytics\backend\data\generated_data\opening_stats.json",
         "opening_stats.json",
         "../opening_stats.json",
         "data/opening_stats.json"
@@ -290,7 +291,10 @@ def print_generation_summary(results):
     if results['statistics']:
         print("\nDataset Statistics:")
         for key, value in results['statistics'].items():
-            print(f"  {key.replace('_', ' ').title()}: {value:,}")
+            if isinstance(value, (int, float)):
+                print(f"  {key.replace('_', ' ').title()}: {value:,}")
+            else:
+                print(f"  {key.replace('_', ' ').title()}: {value}")
     
     print("\nAll files saved to: data/generated_data/")
     print("="*60)

@@ -1,13 +1,14 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
-import { ReactElement } from 'react';
+import { ReactElement, ReactNode } from 'react';
 
 import { cn } from "../utils";
 
 // ─ Types ────────────────────────────────────────────────────────────────────────────────────────
+
 interface ImageDisplayProps {
   src: string;
-  alt: string;
-  caption?: string;
+  alt?: string;
+  caption: ReactNode;
   className?: string;
   imageClassName?: string;
   captionClassName?: string;
@@ -28,7 +29,7 @@ interface ImageDisplayProps {
  */
 const ImageDisplay = ({
   src,
-  alt,
+  alt = "",
   caption,
   className,
   imageClassName,
@@ -53,5 +54,4 @@ const ImageDisplay = ({
 );
 
 // ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
-export { ImageDisplay };
 export default ImageDisplay;

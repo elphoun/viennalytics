@@ -1,7 +1,7 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
-import { ReactNode, MutableRefObject, useEffect } from "react";
+import { ReactNode } from "react";
 
-import Subtitle from "./Text/Subtitle";
+import H3 from "./Text/H3";
 
 // ─ Types ────────────────────────────────────────────────────────────────────────────────────────
 interface ReportSectionProps {
@@ -9,7 +9,6 @@ interface ReportSectionProps {
   title: string;
   icon?: string;
   children: ReactNode;
-  sectionRef?: MutableRefObject<Record<string, HTMLElement | null>>;
 }
 
 /**
@@ -20,28 +19,17 @@ interface ReportSectionProps {
  * @param children - The section content
  * @param sectionRef - Reference object for section navigation
  */
-const ReportSection = ({ id, title, icon, children, sectionRef }: ReportSectionProps) => {
-  useEffect(() => {
-    if (sectionRef) {
-      const element = document.getElementById(id);
-      if (element) {
-        sectionRef.current[id] = element;
-      }
-    }
-  }, [id, sectionRef]);
-
-  return (
-    <section
-      id={id}
-      className="flex flex-col gap-4 lg:gap-6"
-    >
-      <div className="flex flex-row items-center gap-2">
-        <Subtitle text={`${title} | ${icon}`} />
-      </div>
+const ReportSection = ({ id, title, icon, children }: ReportSectionProps) => (
+  <section id={id} className="flex flex-col gap-4">
+    <div className="flex flex-col w-fit">
+      <H3 text={`${title} | ${icon}`} />
+      <hr className="text-white w-[130%] max-w-sm md:max-w-none" />
+    </div>
+    <div className="flex flex-col gap-4">
       {children}
-    </section>
-  );
-};
+    </div>
+  </section>
+);
 
 // ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
 export default ReportSection;

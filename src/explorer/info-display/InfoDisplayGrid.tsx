@@ -40,10 +40,10 @@ const InfoDisplayGrid = ({ title, smallTitle, help, className, children }: InfoD
         className
       )}
     >
-      <div className="w-full bg-black/40 flex items-center justify-center p-1 rounded relative">
+      <div className="w-full bg-black/40 flex items-center justify-center p-1 rounded relative min-h-[28px]">
         <span className="text-xs sm:text-sm text-center w-full font-semibold pr-5 truncate leading-tight text-neutral-100">
-          <span className="hidden sm:inline">{title}</span>
-          <span className="sm:hidden">{displayTitle}</span>
+          <span className="hidden md:inline">{title}</span>
+          <span className="md:hidden">{displayTitle}</span>
         </span>
         <InfoCircle title={help} className="absolute top-1/2 -translate-y-1/2 right-1.5 cursor-help w-3.5 h-3.5 text-gray-400 hover:text-amber-400 transition-colors flex-shrink-0" />
       </div>

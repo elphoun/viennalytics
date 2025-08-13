@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
-import Plot from 'react-plotly.js';
+import * as d3 from 'd3';
+import { useState, useEffect, useMemo, useRef, memo } from 'react';
+import { CHART_MESSAGES } from './Constants';
 
 interface OpeningData {
   opening: string;
@@ -16,11 +17,7 @@ interface ClusterData extends OpeningData {
   pca_y: number;
 }
 
-const CONTENT = {
-  loading: "Analyzing opening patterns...",
-  error: "Error: ",
-  noData: "No opening data available"
-};
+const CONTENT = CHART_MESSAGES;
 
 // Clustering and PCA logic converted from Python
 class ChessOpeningAnalyzer {
@@ -30,7 +27,7 @@ class ChessOpeningAnalyzer {
     );
     const stds = data[0].map((_, colIndex) => {
       const mean = means[colIndex];
-      const variance = data.reduce((sum, row) => sum + (row[colIndex] - mean)**2, 0) / data.length;
+      const variance = data.reduce((sum, row) => sum + (row[colIndex] - mean) ** 2, 0) / data.length;
       return Math.sqrt(variance);
     });
 
@@ -58,7 +55,7 @@ class ChessOpeningAnalyzer {
 
         centroids.forEach((centroid, clusterIndex) => {
           const distance = point.reduce((sum, val, dim) =>
-            sum + (val - centroid[dim])**2, 0
+            sum + (val - centroid[dim]) ** 2, 0
           );
           if (distance < minDistance) {
             minDistance = distance;
@@ -79,7 +76,7 @@ class ChessOpeningAnalyzer {
       // Update centroids
       centroids = centroids.map((_, clusterIndex) => {
         const clusterPoints = data.filter((_, pointIndex) => assignments[pointIndex] === clusterIndex);
-        if (clusterPoints.length === 0) {return centroids[clusterIndex];}
+        if (clusterPoints.length === 0) { return centroids[clusterIndex]; }
 
         return Array.from({ length: dimensions }, (_, dim) =>
           clusterPoints.reduce((sum, point) => sum + point[dim], 0) / clusterPoints.length
@@ -90,8 +87,7 @@ class ChessOpeningAnalyzer {
     return assignments;
   }
 
-  private static pca(data: number[][], originalData: OpeningData[]): { transformed: number[][], explainedVariance: number[] } {
-    const n = data.length;
+  private static pca(originalData: OpeningData[]): { transformed: number[][], explainedVariance: number[] } {
 
     // Instead of complex PCA, create meaningful axes based on white/black performance
     // X-axis: White advantage (white% - black%)
@@ -124,7 +120,7 @@ class ChessOpeningAnalyzer {
     const clusters = this.kMeans(standardizedFeatures, 4);
 
     // Perform PCA for 2D visualization
-    const { transformed: pcaData } = this.pca(standardizedFeatures, openings);
+    const { transformed: pcaData } = this.pca(openings);
 
     // Create cluster labels
     const clusterStats = Array.from({ length: 4 }, (_, clusterIndex) => {
@@ -137,11 +133,11 @@ class ChessOpeningAnalyzer {
     });
 
     const getClusterLabel = (white: number, black: number, draw: number): string => {
-      if (draw > 50) {return "Draw Heavy";}
-      if (white > 70) {return "Major White Advantage";}
-      if (black > 70) {return "Major Black Advantage";}
-      if (Math.abs(white - black) < 10) {return "Competitive";}
-      if (white > black) {return "White Advantage";}
+      if (draw > 50) { return "Draw Heavy"; }
+      if (white > 60) { return "Major White Advantage"; }
+      if (black > 60) { return "Major Black Advantage"; }
+      if (Math.abs(white - black) < 10) { return "Competitive"; }
+      if (white > black) { return "White Advantage"; }
       return "Black Advantage";
     };
 
@@ -160,10 +156,14 @@ class ChessOpeningAnalyzer {
   }
 }
 
-export default function ChessOpeningClusters() {
+const ChessOpeningClusters = memo(() => {
   const [data, setData] = useState<ClusterData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; html: string } | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -171,17 +171,22 @@ export default function ChessOpeningClusters() {
     const fetchAndAnalyzeData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/OpeningWinrates-UsNGpk8Ols7ANe4Ovf0AMKRGcUzN4q.json');
+        console.log('[ChessOpeningClusters] Starting data fetch...');
+        const response = await fetch('https://6sf2y06qu1484byz.public.blob.vercel-storage.com/openingWinrates-F6v81U2KqlmCJqkpF0Sfos6R1Ji0hJ.json');
+        console.log('[ChessOpeningClusters] Response status:', response.status);
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status}`);
         }
         const fetchedData = await response.json();
+        console.log('[ChessOpeningClusters] Raw fetched data:', fetchedData);
+        console.log('[ChessOpeningClusters] Data type:', typeof fetchedData, 'Is array:', Array.isArray(fetchedData));
 
-        if (!isMounted) {return;}
+        if (!isMounted) { return; }
 
         // Process and clean the data
         const processedData: OpeningData[] = [];
         if (fetchedData && Array.isArray(fetchedData)) {
+          console.log('[ChessOpeningClusters] Processing', fetchedData.length, 'items');
           fetchedData.forEach((item: any) => {
             if (item.white != null && item.black != null && item.draw != null) {
               processedData.push({
@@ -194,18 +199,21 @@ export default function ChessOpeningClusters() {
             }
           });
         }
+        console.log('[ChessOpeningClusters] Processed data count:', processedData.length);
 
         // Perform clustering analysis
         const analyzedData = ChessOpeningAnalyzer.analyzeOpenings(processedData);
+        console.log('[ChessOpeningClusters] Analyzed data:', analyzedData);
+        console.log('[ChessOpeningClusters] Final data count:', analyzedData.length);
 
         if (isMounted) {
           setData(analyzedData);
           setError(null);
         }
       } catch (err) {
+        console.error('[ChessOpeningClusters] Error fetching data:', err);
         if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Failed to analyze opening data');
-          setData([]);
+          setError(`Failed to load data: ${err instanceof Error ? err.message : 'Unknown error'}`);
         }
       } finally {
         if (isMounted) {
@@ -221,59 +229,282 @@ export default function ChessOpeningClusters() {
     };
   }, []);
 
+  useEffect(() => {
+    const initializeDimensions = () => {
+      if (!containerRef.current) { 
+        console.log('[ChessOpeningClusters] Container ref not available, retrying...');
+        setTimeout(initializeDimensions, 100);
+        return; 
+      }
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const newDimensions = {
+        width: Math.max(rect.width - 8, 800),
+        height: 520
+      };
+      console.log('[ChessOpeningClusters] Setting dimensions:', newDimensions);
+      setDimensions(newDimensions);
+
+      const resizeObserver = new ResizeObserver(entries => {
+        const entry = entries[0];
+        const resizedDimensions = {
+          width: Math.max(entry.contentRect.width - 8, 800),
+          height: 520
+        };
+        console.log('[ChessOpeningClusters] Resizing dimensions:', resizedDimensions);
+        setDimensions(resizedDimensions);
+      });
+      resizeObserver.observe(containerRef.current);
+    };
+
+    initializeDimensions();
+  }, []);
+
   const chartData = useMemo(() => {
-    if (!data.length) {return null;}
+    if (!data.length) { 
+      console.log('[ChessOpeningClusters] Chart data is null, data length:', data.length);
+      return null; 
+    }
 
     const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4'];
     const clusters = Array.from(new Set(data.map(item => item.cluster))).sort();
 
-    const traces = clusters.map(clusterIndex => {
+    const clusterGroups = clusters.map(clusterIndex => {
       const clusterData = data.filter(item => item.cluster === clusterIndex);
       const clusterLabel = clusterData[0]?.cluster_label || `Cluster ${clusterIndex}`;
 
       return {
-        type: 'scatter' as const,
-        mode: 'markers' as const,
-        x: clusterData.map(item => item.pca_x),
-        y: clusterData.map(item => item.pca_y),
-        name: `${clusterLabel} (${clusterData.length})`,
-        marker: {
-          color: colors[clusterIndex % colors.length],
-          size: clusterData.map(item => Math.max(6, Math.min(20, Math.sqrt(item.total) / 10))),
-          opacity: 0.7,
-          line: { color: '#000', width: 0.5 }
-        },
-        text: clusterData.map(item =>
-          `${item.opening}<br>White: ${item.white.toFixed(1)}%<br>Black: ${item.black.toFixed(1)}%<br>Draw: ${item.draw.toFixed(1)}%<br>Games: ${item.total}`
-        ),
-        hovertemplate: '%{text}<extra></extra>'
+        cluster: clusterIndex,
+        label: clusterLabel,
+        data: clusterData,
+        color: colors[clusterIndex % colors.length]
       };
     });
 
-    // Add annotations for top openings
+    // Top openings for annotations
     const topOpenings = data
       .sort((a, b) => b.total - a.total)
       .slice(0, 10);
 
-    const annotations = topOpenings.map(opening => ({
-      x: opening.pca_x,
-      y: opening.pca_y,
-      text: opening.opening.length > 20 ? `${opening.opening.substring(0, 20)  }...` : opening.opening,
-      showarrow: true,
-      arrowhead: 2,
-      arrowsize: 1,
-      arrowwidth: 1,
-      arrowcolor: '#666',
-      ax: 20,
-      ay: -20,
-      font: { size: 9, color: '#ea580c' },
-      bgcolor: 'rgba(255,255,255,0.8)',
-      bordercolor: '#ea580c',
-      borderwidth: 1
-    }));
-
-    return { traces, annotations };
+    const result = { clusterGroups, topOpenings };
+    console.log('[ChessOpeningClusters] Chart data processed:', result);
+    return result;
   }, [data]);
+
+  // D3 rendering effect
+  useEffect(() => {
+    console.log('[ChessOpeningClusters] D3 render effect triggered:', {
+      hasSvgRef: !!svgRef.current,
+      hasChartData: !!chartData,
+      dimensionsWidth: dimensions.width,
+      dimensionsHeight: dimensions.height
+    });
+    
+    if (!svgRef.current || !chartData || dimensions.width === 0) {
+      console.log('[ChessOpeningClusters] D3 render skipped - missing requirements');
+      return;
+    }
+    
+    
+
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove();
+
+    const padding = { top: 60, right: 150, bottom: 60, left: 80 };
+    const width = dimensions.width;
+    const height = dimensions.height;
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+
+    if (chartWidth <= 0 || chartHeight <= 0) { return; }
+
+    // Scales
+    const xExtent = d3.extent(data, d => d.pca_x) as [number, number];
+    const yExtent = d3.extent(data, d => d.pca_y) as [number, number];
+
+    const xScale = d3.scaleLinear()
+      .domain(xExtent)
+      .nice()
+      .range([0, chartWidth]);
+
+    const yScale = d3.scaleLinear()
+      .domain(yExtent)
+      .nice()
+      .range([chartHeight, 0]);
+
+    const sizeScale = d3.scaleSqrt()
+      .domain(d3.extent(data, d => d.total) as [number, number])
+      .range([6, 20]);
+
+    const group = svg.append('g').attr('transform', `translate(${padding.left},${padding.top})`);
+
+    // Draw axes
+    const xAxis = group.append('g')
+      .attr('transform', `translate(0,${chartHeight})`)
+      .call(d3.axisBottom(xScale).ticks(8));
+
+    xAxis.selectAll('text')
+      .attr('fill', '#ea580c')
+      .attr('font-size', 10);
+
+    xAxis.selectAll('path, line')
+      .attr('stroke', '#ea580c');
+
+    const yAxis = group.append('g')
+      .call(d3.axisLeft(yScale).ticks(8));
+
+    yAxis.selectAll('text')
+      .attr('fill', '#ea580c')
+      .attr('font-size', 10);
+
+    yAxis.selectAll('path, line')
+      .attr('stroke', '#ea580c');
+
+    // Zero lines
+    group.append('line')
+      .attr('x1', xScale(0))
+      .attr('x2', xScale(0))
+      .attr('y1', 0)
+      .attr('y2', chartHeight)
+      .attr('stroke', '#ea580c')
+      .attr('stroke-width', 1)
+      .attr('opacity', 0.4);
+
+    group.append('line')
+      .attr('x1', 0)
+      .attr('x2', chartWidth)
+      .attr('y1', yScale(0))
+      .attr('y2', yScale(0))
+      .attr('stroke', '#ea580c')
+      .attr('stroke-width', 1)
+      .attr('opacity', 0.4);
+
+    // Draw scatter points by cluster
+    chartData.clusterGroups.forEach(clusterGroup => {
+      group.selectAll(`.cluster-${clusterGroup.cluster}`)
+        .data(clusterGroup.data)
+        .join('circle')
+        .attr('class', `cluster-${clusterGroup.cluster}`)
+        .attr('cx', d => xScale(d.pca_x))
+        .attr('cy', d => yScale(d.pca_y))
+        .attr('r', d => sizeScale(d.total))
+        .attr('fill', clusterGroup.color)
+        .attr('stroke', '#000')
+        .attr('stroke-width', 0.5)
+        .attr('opacity', 0.7)
+        .style('cursor', 'pointer')
+        .on('mousemove', (event, d) => {
+          setTooltip({
+            x: event.offsetX + padding.left,
+            y: event.offsetY + padding.top - 20,
+            html: `<div style='font-size:13px'><b>${d.opening}</b><br/>White: <b>${d.white.toFixed(1)}%</b><br/>Black: <b>${d.black.toFixed(1)}%</b><br/>Draw: <b>${d.draw.toFixed(1)}%</b><br/>Games: <b>${d.total}</b></div>`
+          });
+        })
+        .on('mouseleave', () => setTooltip(null));
+    });
+
+    // Add annotations for top openings
+    chartData.topOpenings.forEach(opening => {
+      const x = xScale(opening.pca_x);
+      const y = yScale(opening.pca_y);
+      const labelText = opening.opening.length > 20 ? `${opening.opening.substring(0, 20)}...` : opening.opening;
+
+      // Annotation line
+      group.append('line')
+        .attr('x1', x)
+        .attr('y1', y)
+        .attr('x2', x + 20)
+        .attr('y2', y - 20)
+        .attr('stroke', '#666')
+        .attr('stroke-width', 1);
+
+      // Annotation text background
+      const textBg = group.append('rect')
+        .attr('x', x + 22)
+        .attr('y', y - 32)
+        .attr('rx', 3)
+        .attr('fill', 'rgba(255,255,255,0.8)')
+        .attr('stroke', '#ea580c')
+        .attr('stroke-width', 1);
+
+      // Annotation text
+      const text = group.append('text')
+        .attr('x', x + 25)
+        .attr('y', y - 22)
+        .attr('font-size', 9)
+        .attr('fill', '#ea580c')
+        .text(labelText);
+
+      // Adjust background size to text
+      const bbox = (text.node() as SVGTextElement).getBBox();
+      textBg.attr('width', bbox.width + 6)
+        .attr('height', bbox.height + 4);
+    });
+
+    // Title
+    svg.append('text')
+      .attr('x', width / 2)
+      .attr('y', 25)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#ea580c')
+      .attr('font-size', 16)
+      .text('Chess Opening Clusters by Win/Loss/Draw Patterns');
+
+    // Axis labels
+    svg.append('text')
+      .attr('x', padding.left + chartWidth / 2)
+      .attr('y', height - 20)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#ea580c')
+      .attr('font-size', 12)
+      .text('← Black Advantage | White Advantage →');
+
+    svg.append('text')
+      .attr('transform', `translate(20,${padding.top + chartHeight / 2}) rotate(-90)`)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#ea580c')
+      .attr('font-size', 12)
+      .text('Decisiveness (Low Draws ↑ | High Draws ↓)');
+
+    // Legend
+    const legend = svg.append('g')
+      .attr('transform', `translate(${width - padding.right + 10}, ${padding.top})`);
+
+    chartData.clusterGroups.forEach((clusterGroup, i) => {
+      const legendItem = legend.append('g')
+        .attr('transform', `translate(0, ${i * 25})`);
+
+      legendItem.append('circle')
+        .attr('cx', 8)
+        .attr('cy', 8)
+        .attr('r', 6)
+        .attr('fill', clusterGroup.color)
+        .attr('stroke', '#000')
+        .attr('stroke-width', 0.5)
+        .attr('opacity', 0.7);
+
+      legendItem.append('text')
+        .attr('x', 20)
+        .attr('y', 12)
+        .attr('fill', '#ea580c')
+        .attr('font-size', 10)
+        .text(`${clusterGroup.label} (${clusterGroup.data.length})`);
+    });
+
+    // Legend background
+    const legendBbox = (legend.node() as SVGGElement).getBBox();
+    legend.insert('rect', ':first-child')
+      .attr('x', legendBbox.x - 5)
+      .attr('y', legendBbox.y - 5)
+      .attr('width', legendBbox.width + 10)
+      .attr('height', legendBbox.height + 10)
+      .attr('fill', 'rgba(0,0,0,0.1)')
+      .attr('stroke', '#ea580c')
+      .attr('stroke-width', 1)
+      .attr('rx', 3);
+      
+    
+  }, [chartData, dimensions, data]);
 
   if (loading) {
     return (
@@ -294,61 +525,47 @@ export default function ChessOpeningClusters() {
   if (!chartData) {
     return (
       <div className="h-full w-full flex items-center justify-center">
-        <span className="text-yellow-400 italic">{CONTENT.noData}</span>
+        <span className="text-gray-400 italic">{CONTENT.noData}</span>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full">
-      <Plot
-        data={chartData.traces}
-        layout={{
-          autosize: true,
-          height: 500,
-          title: {
-            text: 'Chess Opening Clusters by Win/Loss/Draw Patterns',
-            font: { color: '#ea580c', size: 16 },
-            x: 0.5
-          },
-          xaxis: {
-            title: { text: '← Black Advantage | White Advantage →', font: { color: '#ea580c', size: 12 } },
-            tickfont: { color: '#c2410c', size: 10 },
-            gridcolor: '#ea580c20',
-            zerolinecolor: '#ea580c40'
-          },
-          yaxis: {
-            title: { text: 'Decisiveness (Low Draws ↑ | High Draws ↓)', font: { color: '#ea580c', size: 12 } },
-            tickfont: { color: '#c2410c', size: 10 },
-            gridcolor: '#ea580c20',
-            zerolinecolor: '#ea580c40'
-          },
-          paper_bgcolor: 'transparent',
-          plot_bgcolor: 'transparent',
-          font: { color: '#ea580c' },
-          showlegend: true,
-          legend: {
-            font: { color: '#ea580c', size: 10 },
-            bgcolor: 'rgba(0,0,0,0.1)',
-            bordercolor: '#ea580c40',
-            borderwidth: 1,
-            x: 1.02,
-            y: 1
-          },
-          annotations: chartData.annotations,
-          margin: { t: 60, r: 150, b: 60, l: 80 }
-        }}
-        config={{
-          responsive: true,
-          displayModeBar: false,
-          staticPlot: false,
-          scrollZoom: true,
-          doubleClick: 'reset'
-        }}
-        className="w-full h-full"
-        useResizeHandler
-        style={{ width: '100%', height: '100%' }}
+    <div ref={containerRef} className="w-full h-fit min-h-[520px] relative">
+      <svg
+        ref={svgRef}
+        width={dimensions.width || 800}
+        height={dimensions.height}
+        aria-label="Chess Opening Clusters Analysis"
+        style={{ display: 'block', width: '100%', border: '3px solid #ea580c', background: '#18181b' }}
       />
+      {tooltip && (
+        <div
+          style={{
+            position: 'absolute',
+            left: tooltip.x,
+            top: tooltip.y,
+            pointerEvents: 'none',
+            color: '#fff',
+            backgroundColor: 'rgba(30,41,59,0.97)',
+            borderRadius: 8,
+            padding: '6px 12px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            zIndex: 10,
+            fontFamily: 'inherit',
+            fontSize: 13,
+            border: '1px solid #ea580c',
+            minWidth: 120,
+            maxWidth: 220,
+            whiteSpace: 'pre-line',
+            textAlign: 'left',
+          }}
+          dangerouslySetInnerHTML={{ __html: tooltip.html }}
+        />
+      )}
     </div>
   );
-}
+});
+ChessOpeningClusters.displayName = 'ChessOpeningClusters';
+
+export default ChessOpeningClusters;

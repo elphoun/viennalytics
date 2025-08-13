@@ -10,7 +10,7 @@ import Header from "./header/Header";
  * @param children - The content to display inside the main container
  */
 const MainContainer = memo(({ children }: PropsWithChildren) => (
-  <>
+  <div className={cn('text-white select-none overflow-y-auto scrollbar-thin')}>
     <BackgroundBeams />
     <div
       className={cn(
@@ -28,7 +28,7 @@ const MainContainer = memo(({ children }: PropsWithChildren) => (
         {children}
       </div>
     </div>
-  </>
+  </div>
 ));
 MainContainer.displayName = "MainContainer"
 

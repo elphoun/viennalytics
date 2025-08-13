@@ -39,9 +39,9 @@ const VariantDropdown = ({ options, value, disabled = false, onSelect }: Variant
       }}
       disabled={disabled}
       aria-label={PLACEHOLDER}
-      className={cn("flex-1 relative p-2 border border-gray-300 rounded-md focus:outline-none",
-        "focus:ring-2 focus:ring-blue-500 w-full focus:border-transparent truncate",
-        "transition-colors duration-200 bg-transparent z-100")}
+      className={cn("w-full relative p-2 border border-gray-300 rounded-md focus:outline-none",
+        "focus:ring-2 focus:ring-blue-500 focus:border-transparent truncate min-w-0",
+        "transition-colors duration-200 bg-white/10 text-white z-100")}
     >
       {renderOptions}
     </select>

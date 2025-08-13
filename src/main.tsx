@@ -8,7 +8,6 @@ import AppProviders from './context/Providers';
 import Opening from './explorer/Opening';
 import Homepage from './homepage/Homepage';
 import Report from './report/Report';
-import { cn } from "./utils";
 
 /** Main router configuration for the application. */
 const router = createBrowserRouter([
@@ -27,10 +26,8 @@ const router = createBrowserRouter([
 /** Main entry point for the React application. Renders the app with providers and router. */
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <div className={cn('text-white select-none overflow-y-auto scrollbar-thin')}>
       <AppProviders>
         <RouterProvider router={router} />
       </AppProviders>
-    </div>
   </StrictMode>,
 );

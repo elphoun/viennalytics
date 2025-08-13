@@ -18,7 +18,7 @@ const Hyperlink = memo(({ children, link }: HyperlinkProps) => (
     <a 
       href={link} 
       target="_blank" 
-      className="underline align-middle text-orange-400 inline-flex items-center justify-center" 
+      className="underline text-orange-400" 
       rel="noreferrer"
     >
       {children}

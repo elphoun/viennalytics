@@ -34,7 +34,6 @@ interface Opening {
 /** List of chess game data entries. */
 type GameDataList = Opening[];
 
-
 // ─ Reports Database ─────────────────────────────────────────────────────────────────────────────
 interface GameDisplay {
   white: Player,

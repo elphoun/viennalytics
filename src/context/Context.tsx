@@ -1,7 +1,7 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 import { createContext } from "react";
 
-import { OpeningsContextType } from "./ContextIntefaces";
+import { OpeningsContextType } from "./ContextInterfaces";
 
 /** OpeningsContext stores the openings in a local context */
 const OpeningsContext = createContext<OpeningsContextType>({

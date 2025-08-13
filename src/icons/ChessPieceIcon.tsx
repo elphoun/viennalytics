@@ -3,15 +3,14 @@ import React from "react";
 const ChessPieceIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4 inline-block align-text-bottom" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
+    viewBox="0 0 45 45"
     className={className}
   >
-    <g>
-      <ellipse cx="12" cy="19" rx="7" ry="2.5" fill="#222" />
-      <rect x="9.5" y="7" width="5" height="8" rx="2.5" fill="#fff" stroke="#222" strokeWidth="1.2" />
-      <circle cx="12" cy="6" r="2.5" fill="#fff" stroke="#222" strokeWidth="1.2" />
-      <rect x="10.5" y="3.5" width="3" height="1.5" rx="0.75" fill="#222" />
+    <g fill="none" fillRule="evenodd" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
+      <path strokeLinejoin="miter" d="M22.5 11.63V6M20 8h5" />
+      <path fill="currentColor" strokeLinecap="butt" strokeLinejoin="miter" d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" />
+      <path fill="currentColor" d="M12.5 37c5.5 3.5 14.5 3.5 20 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-2.5-7.5-12-10.5-16-4-3 6 6 10.5 6 10.5v7" />
+      <path d="M12.5 30c5.5-3 14.5-3 20 0m-20 3.5c5.5-3 14.5-3 20 0m-20 3.5c5.5-3 14.5-3 20 0" />
     </g>
   </svg>
 );

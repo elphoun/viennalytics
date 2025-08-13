@@ -1,0 +1,50 @@
+/* CSS animations for BackgroundBeams component */
+@keyframes beam-movement {
+  0% {
+    stroke-dasharray: 0 100;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 100 100;
+    stroke-dashoffset: -50;
+  }
+  100% {
+    stroke-dasharray: 0 100;
+    stroke-dashoffset: -100;
+  }
+}
+
+@keyframes gradient-shift {
+  0% { stroke: url(#linearGradient-blue); }
+  33% { stroke: url(#linearGradient-purple); }
+  66% { stroke: url(#linearGradient-cyan); }
+  100% { stroke: url(#linearGradient-blue); }
+}
+
+.beam-path {
+  stroke-dasharray: 0 100;
+  animation: beam-movement 8s ease-in-out infinite;
+  opacity: 0.4;
+}
+
+.beam-path:nth-child(odd) {
+  animation-duration: 10s;
+  animation-delay: 1s;
+}
+
+.beam-path:nth-child(even) {
+  animation-duration: 12s;
+  animation-delay: 2s;
+}
+
+.beam-path:nth-child(3n) {
+  animation-delay: 3s;
+}
+
+.beam-path:nth-child(4n) {
+  animation-delay: 0.5s;
+}
+
+.beam-path:nth-child(5n) {
+  animation-delay: 4s;
+}

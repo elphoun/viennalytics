@@ -13,7 +13,7 @@ interface ParagraphProps extends PropsWithChildren {
  * @param className - Optional additional CSS classes
  */
 const Paragraph = memo(({ children, className }: ParagraphProps): ReactNode => (
-  <span className={cn("indent-4 text-white space-x-2 text-base electrolize-regular", className)}>
+  <span className={cn("indent-4 text-white text-base electrolize-regular", className)}>
     {children}
   </span>
 ));

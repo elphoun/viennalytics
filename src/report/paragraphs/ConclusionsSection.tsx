@@ -1,6 +1,7 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
-import DataCard from "../../ui/DataCard";
+import ChessMinigame from "../../components/ChessMinigame";
 import ReportSection from "../ReportSection";
+import { H4 } from "../Text";
 import Paragraph from "../Text/Paragraph";
 
 /**
@@ -8,48 +9,42 @@ import Paragraph from "../Text/Paragraph";
  * Includes summary of findings and suggestions for future research.
  */
 const ConclusionsSection = () => (
-    <ReportSection id="conclusions" title="Conclusions" icon="🎯">
-      <Paragraph className="mb-6">
-        This comprehensive analysis of chess opening performance provides valuable insights into the
-        strategic landscape of online chess. The data clearly demonstrates that opening choice is not
-        merely a matter of personal preference, but a critical strategic decision that significantly
-        impacts game outcomes.
-      </Paragraph>
+  <ReportSection id="conclusions" title="Results and Discussion" icon="🎯">
+    <H4 text="ELO Distribution" />
+    <Paragraph>
+      The LiChess dataset does not contain many games outside of the 1500 to 2700 range.
+      As the vast majority of players—around 95% of the population—have a rating outside of this range, the data may not be a complete and accurate representation of the range’s actual opening demographic.
+      As a result, individuals with lower skillsets are less likely to benefit directly from studying these games, since the nuances of some positions may not translate well into their level of play.
+    </Paragraph>
+    <Paragraph>
+      That said, if you&apos;re rated above 1500 or simply curious about advanced play, the Opening Explorer still offers valuable insights into high-level strategies and their frequency of use.
+    </Paragraph>
 
-      <DataCard title="Summary of Key Findings" className="mb-6">
-        <div className="space-y-2">
-          <Paragraph className="mb-2">• The Sicilian Defense remains the most popular and effective opening across multiple rating levels</Paragraph>
-          <Paragraph className="mb-2">• Opening success rates vary significantly based on player rating and time control</Paragraph>
-          <Paragraph className="mb-2">• Tactical openings perform better in faster time controls, while positional openings excel in classical games</Paragraph>
-          <Paragraph className="mb-2">• Player rating strongly correlates with opening sophistication and theoretical knowledge</Paragraph>
-          <Paragraph className="mb-0">• Draw rates increase with both player rating and opening complexity</Paragraph>
-        </div>
-      </DataCard>
+    <H4 text="Human Error" />
+    <Paragraph>
+      Unlike chess engines such as Stockfish, human players cannot play perfectly. There are two general types of mistakes that may affect this dataset:
+    </Paragraph>
+    <Paragraph>
+      <b>Tactical and Positional Blunders:</b> This includes tactical oversights such as hanging a queen or missing checkmate. Additionally, subtle positional errors may accumulate over time, leading to unexpected losses despite having an opening advantage. These errors create inconsistencies in the performance of different openings, leading to an inaccurate assessment of an opening’s true value in the game.
+    </Paragraph>
+    <Paragraph>
+      <b>Time Pressure Effects:</b> While time control was excluded from this analysis since this report focuses on openings, it&apos;s important to acknowledge its impact on game outcomes. In shorter time formats such as blitz or bullet, time constraints lead to lower quality play in the middlegame and endgame. Players sometimes run out of time before completing their games, even in winning positions.
+    </Paragraph>
 
-      <Paragraph className="my-6">
-        For chess players looking to improve their game, these findings suggest that opening study
-        should be tailored to individual rating level and preferred time controls. Beginners benefit
-        from mastering fundamental opening principles, while advanced players should focus on deep
-        theoretical preparation in their chosen systems.
-      </Paragraph>
+    <Paragraph>
+      Consider this position as an example:
+    </Paragraph>
 
-      <DataCard title="Future Research Directions" className="mb-6">
-        <Paragraph className="mb-0">
-          Future studies could explore the relationship between opening choice and endgame performance,
-          analyze seasonal trends in opening popularity, and investigate the impact of chess engine
-          analysis on opening theory development. Additionally, examining cultural and geographical
-          preferences in opening choice could provide interesting insights into chess playing styles
-          around the world.
-        </Paragraph>
-      </DataCard>
+    <ChessMinigame
+      initialFen="8/7N/8/3k4/8/2K5/5B2/8 w - - 0 1"
+      timeLimit={30}
+    />
 
-      <Paragraph className="mt-6">
-        This research contributes to the growing body of chess analytics literature and provides
-        practical guidance for players seeking to optimize their opening repertoire. As online chess
-        continues to grow, such data-driven insights become increasingly valuable for understanding
-        and improving chess performance.
-      </Paragraph>
-    </ReportSection>
+    <Paragraph>
+      This position is a guaranteed <b>mate in 38</b> for white. While theoretically possible to execute, the time pressure in faster formats means the game will likely end in a draw due to the 50-move rule or insufficient time. This illustrates how shorter time controls can magnify the impact of time management, often deciding games that would otherwise be straightforward wins.
+    </Paragraph>
+
+  </ReportSection>
 );
 
 // ─ Exports ──────────────────────────────────────────────────────────────────────────────────────

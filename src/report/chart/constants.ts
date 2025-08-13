@@ -17,5 +17,12 @@ const ELO_RANGES = [
   "2800-2899",
 ];
 
+/** Standardized chart state messages */
+const CHART_MESSAGES = {
+  loading: "Loading...",
+  error: "Error: ",
+  noData: "No data available"
+};
+
 // ─ Exports ──────────────────────────────────────────────────────────────────────────────────────
-export { ELO_RANGES };
+export { ELO_RANGES, CHART_MESSAGES };

@@ -31,11 +31,13 @@ const PromptOnHighlight = memo(({
       )}
     >
       {children}
-      <span className={cn(
-        "absolute left-1/2 -translate-x-1/2 top-full mt-1 w-max text-xs rounded",
-        "bg-orange-400 text-gray-900 opacity-0 group-hover:opacity-100 transition-opacity",
-        "pointer-events-none z-10 shadow-lg indent-0 font-medium"
-      )}>
+      <span
+        className={cn(
+          "absolute left-1/2 -translate-x-1/2 top-full mt-1 p-2 w-max text-xs font-semibold rounded",
+          "bg-orange-400 text-gray-900 opacity-0 group-hover:opacity-100 transition-opacity",
+          "pointer-events-none z-10 shadow-lg indent-0"
+        )}
+      >
         {prompt}
       </span>
     </span>

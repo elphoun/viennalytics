@@ -23,8 +23,7 @@ const EvalBar = memo(({ evaluation }: EvalBarProps) => {
 
   // Convert the evaluation percentage to a typical chess score format.
   // Assuming 50 is an equal position (0.0).
-  const score = (whitePercentage - 50) / 10;
-  const displayScore = score.toFixed(1);
+  const displayScore = evaluation.toFixed(1);
 
   // Determine text color based on the background.
   // If the score is in the upper (black) part, text is white. Otherwise, black.

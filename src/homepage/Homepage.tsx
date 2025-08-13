@@ -1,8 +1,8 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
 import { DiscordIcon, GithubIcon, InstagramIcon } from "../icons/SocialIcons";
 import MainContainer from "../containers/MainContainer";
-import BigTitle from "../report/Text/BigTitle";
-import Subtitle from "../report/Text/Subtitle";
+import H1 from "../report/Text/H1";
+import H3 from "../report/Text/H3";
 import { cn } from "../utils";
 
 // ─ Constants ────────────────────────────────────────────────────────────────────────────────────
@@ -23,8 +23,8 @@ const CONTENT = {
 const Homepage = () => (
   <MainContainer>
     <div className={cn("flex flex-col items-center justify-center flex-1 w-full h-full min-h-0 gap-3 text-center select-none animate-slideIn")}>
-      <BigTitle text={CONTENT.home.title} />
-      <Subtitle text={CONTENT.home.description} />
+      <H1 text={CONTENT.home.title} />
+      <H3 text={CONTENT.home.description} />
       <hr className={cn("w-full my-5 text-white max-w-1/3")} />
       <div className={cn("flex flex-row items-center justify-between w-1/2 max-w-80 gap-x-4")}>
         <a href="https://github.com/elphoun/viennalytics" aria-label={CONTENT.home.githubAlt}>

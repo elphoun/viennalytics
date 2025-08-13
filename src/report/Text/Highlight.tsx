@@ -19,13 +19,10 @@ interface HighlightProps {
 const Highlight = memo(({ color = "bg-orange-400/20 text-orange-300 border-orange-400/30", text, icon }: HighlightProps): ReactElement => (
   <>
     {' '}
-    <span
-      className={cn('inline-flex text-center px-2 py-0.5 rounded font-semibold text-sm indent-0 border', color)}
-    >
-      {icon && <span className="mr-1 flex items-center">{icon}</span>}
+    <span className={cn('inline-block px-1 rounded font-semibold text-sm indent-0 border', color)}>
+      {icon && <span className="mr-1 align-text-bottom">{icon}</span>}
       {text}
     </span>
-    {' '}
   </>
 ));
 Highlight.displayName = "Highlight";

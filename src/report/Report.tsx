@@ -7,26 +7,23 @@ import ConclusionsSection from "./paragraphs/ConclusionsSection";
 import DataOverviewSection from "./paragraphs/DataOverviewSection";
 import IntroductionSection from "./paragraphs/IntroductionSection";
 import MethodologySection from "./paragraphs/MethodologySection";
+import MovePairAnalysis from "./paragraphs/MovePairAnalysis";
 import OpeningAnalysisSection from "./paragraphs/OpeningAnalysisSection";
-import PerformanceMetricsSection from "./paragraphs/PerformanceMetricsSection";
-import StrategicInsightsSection from "./paragraphs/StrategicInsightsSection";
 import SearchGlassIcon from "../containers/header/SearchGlassIcon";
 import MainContainer from "../containers/MainContainer";
-import Title from "../containers/Title";
+import PageTitle from "../containers/PageTitle";
 import KeyTermsSection from "./Text/KeyTermsSection";
-import OpeningEvalSection from "./paragraphs/OpeningEval";
-import MovePairAnalysis from "./paragraphs/MovePairAnalysis";
 
 // ─ Constants ────────────────────────────────────────────────────────────────────────────────────
 
 /** Report component displays the analytics report page */
 const Report = memo(() => (
   <MainContainer>
-    <div className="w-full flex relative">
+    <div className="w-full flex relative max-w-7xl">
 
       {/* Main Content */}
       <div className="flex-1 min-w-0 w-full flex flex-col justify-center">
-        <Title
+        <PageTitle
           text="Chess Opening Analytics Report"
           icon={<SearchGlassIcon />}
         />
@@ -44,7 +41,6 @@ const Report = memo(() => (
           <MethodologySection />
           <DataOverviewSection />
           <OpeningAnalysisSection />
-          <OpeningEvalSection />
           <MovePairAnalysis />
           <ConclusionsSection />
         </div>

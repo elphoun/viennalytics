@@ -188,9 +188,9 @@ const InfoDisplay = ({ variation }: { variation?: Variation }) => {
   }
 
   return (
-    <div className="p-2 flex flex-col lg:flex-row h-full w-full gap-2 bg-gradient-to-br from-black/10 to-black/30 max-w-full overflow-y-auto lg:overflow-hidden">
+    <div className="p-2 flex flex-col xl:flex-row h-full w-full gap-2 bg-gradient-to-br from-black/10 to-black/30 max-w-full overflow-y-auto xl:overflow-hidden">
       {/* Main stats grids */}
-      <div className="flex flex-col h-auto lg:h-full w-full justify-start lg:justify-around min-h-0 min-w-0 flex-1 flex-shrink-0 gap-2 lg:flex-1">
+      <div className="flex flex-col h-auto xl:h-full w-full justify-start xl:justify-around min-h-0 min-w-0 flex-1 flex-shrink-0 gap-2 xl:flex-1">
         <InfoDisplayGrid
           title={GRID_INFO.winLossDraw.title}
           smallTitle={GRID_INFO.winLossDraw.smallTitle}
@@ -241,7 +241,7 @@ const InfoDisplay = ({ variation }: { variation?: Variation }) => {
       </div >
 
       {/* Charts Section */}
-      <div className="flex flex-col h-auto lg:h-full w-full gap-2 lg:flex-[2.5] min-h-0">
+      <div className="flex flex-col h-auto xl:h-full w-full gap-2 xl:flex-[2.5] min-h-0">
         {/* ELO Trend Chart Section */}
         <InfoDisplayGrid
           title={GRID_INFO.eloTrend.title}
