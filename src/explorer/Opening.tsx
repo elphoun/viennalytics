@@ -444,7 +444,7 @@ const Opening = () => {
     animationDuration: 150,
     onPieceDrop: ({ sourceSquare, targetSquare }: { piece: any; sourceSquare: string; targetSquare: string | null }) => {
       try {
-        if (!targetSquare) return false; // Handle null targetSquare
+        if (!targetSquare) { return false; }
         if (isValidMove(sourceSquare, targetSquare, gamePosition)) {
           return makeMove(sourceSquare, targetSquare);
         }

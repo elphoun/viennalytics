@@ -1,5 +1,5 @@
 // ─ Imports ──────────────────────────────────────────────────────────────────────────────────────
-import React from "react";
+import { ReactNode } from "react";
 
 // ─ Helper Functions ─────────────────────────────────────────────────────────────────────────────
 
@@ -10,7 +10,7 @@ import React from "react";
  */
 interface TextProps {
   text: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
 }
 
 /**
@@ -23,7 +23,7 @@ interface TextProps {
  * @property className - Additional CSS classes for the button
  */
 interface ClickProps {
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   label: string;
   onClick: () => void;
   disabled?: boolean;
