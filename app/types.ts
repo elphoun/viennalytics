@@ -1,45 +1,56 @@
-// Opening Explorer Types 
+// Opening Explorer Types
 interface Player {
-    name: string;
-    elo: number;
+  name: string;
+  elo: number;
 }
 
+type Result = 'white' | 'black' | 'draw';
+
 interface PopularNextMove {
-    eval: number;
-    fen: string;
-    move: string;
+  eval: number;
+  fen: string;
+  move: string;
 }
 
 interface TopGame {
-    white: string;
-    black: string;
-    event: string;
-    studyName: string;
-    numMoves: number;
-    gameURL: string;
+  white: string;
+  black: string;
+  result: Result;
+  event: string;
+  studyName: string;
+  numMoves: number;
+  gameURL: string;
 }
 
 interface Variant {
-    averageMoves: number;
-    drawPercentage: number;
-    fen: string;
-    openingEval: number;
-    openingMoves: string[];
-    playerElos: Player[];
-    popularNextMoves: PopularNextMove[];
-    strongestPlayer: string;
-    topGames: TopGame[];
-    totalGames: number;
-    variation: string;
-    winPercentageBlack: number;
-    winPercentageWhite: number;
+  averageMoves: number;
+  drawPercentage: number;
+  fen: string;
+  openingEval: number;
+  openingMoves: string[];
+  playerElos: Player[];
+  popularNextMoves: PopularNextMove[];
+  strongestPlayer: string;
+  topGames: TopGame[];
+  totalGames: number;
+  variation: string;
+  winPercentageBlack: number;
+  winPercentageWhite: number;
 }
 
 interface Opening {
-    opening: string;
-    variations: Variant[];
+  opening: string;
+  variations: Variant[];
 }
 
 type OpeningStats = Opening[];
 
-export type { Player, PopularNextMove, TopGame, Variant, Opening, OpeningStats };
+export type {
+  Player,
+  PopularNextMove,
+  TopGame,
+  Variant,
+  Opening,
+  OpeningStats,
+  Result,
+};

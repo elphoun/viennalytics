@@ -15,10 +15,18 @@
 }
 
 @keyframes gradient-shift {
-  0% { stroke: url(#linearGradient-blue); }
-  33% { stroke: url(#linearGradient-purple); }
-  66% { stroke: url(#linearGradient-cyan); }
-  100% { stroke: url(#linearGradient-blue); }
+  0% {
+    stroke: url(#linearGradient-blue);
+  }
+  33% {
+    stroke: url(#linearGradient-purple);
+  }
+  66% {
+    stroke: url(#linearGradient-cyan);
+  }
+  100% {
+    stroke: url(#linearGradient-blue);
+  }
 }
 
 .beam-path {

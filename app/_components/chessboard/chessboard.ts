@@ -1,4 +1,4 @@
-import { Chess, Move } from 'chess.js';
+import { Chess } from 'chess.js';
 
 export interface ChessMove {
   from: string;
@@ -20,7 +20,8 @@ export class ChessboardManager {
   private initialPosition: string;
 
   constructor(initialFen?: string) {
-    this.initialPosition = initialFen || "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    this.initialPosition =
+      initialFen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
     this.game = new Chess(this.initialPosition);
   }
 
@@ -33,7 +34,7 @@ export class ChessboardManager {
           to,
           san: move.san,
           fen: this.game.fen(),
-          moveNumber: Math.floor(this.moves.length / 2) + 1
+          moveNumber: Math.floor(this.moves.length / 2) + 1,
         });
         return true;
       }
@@ -67,14 +68,14 @@ export class ChessboardManager {
 
   revertToMove(moveIndex: number): void {
     if (moveIndex < 0 || moveIndex >= this.moves.length) return;
-    
+
     // Reset to initial position
     this.game = new Chess(this.initialPosition);
-    
+
     // Replay moves up to the specified index
     const movesToReplay = this.moves.slice(0, moveIndex + 1);
     this.moves = [];
-    
+
     for (const move of movesToReplay) {
       this.game.move({ from: move.from, to: move.to });
       this.moves.push(move);
@@ -83,11 +84,11 @@ export class ChessboardManager {
 
   setToOpeningMove(openingMoves: string[], moveIndex: number): void {
     if (moveIndex < 0 || moveIndex >= openingMoves.length) return;
-    
+
     // Reset to initial position
     this.game = new Chess(this.initialPosition);
     this.moves = [];
-    
+
     // Play opening moves up to the specified index
     for (let i = 0; i <= moveIndex; i++) {
       try {
@@ -98,7 +99,7 @@ export class ChessboardManager {
             to: move.to,
             san: move.san,
             fen: this.game.fen(),
-            moveNumber: Math.floor(i / 2) + 1
+            moveNumber: Math.floor(i / 2) + 1,
           });
         }
       } catch {
@@ -111,56 +112,67 @@ export class ChessboardManager {
   // Basic position evaluation based on material and position
   getPositionEvaluation(): number {
     const pieceValues = {
-      'p': -1, 'n': -3, 'b': -3, 'r': -5, 'q': -9, 'k': 0,
-      'P': 1, 'N': 3, 'B': 3, 'R': 5, 'Q': 9, 'K': 0
+      p: -1,
+      n: -3,
+      b: -3,
+      r: -5,
+      q: -9,
+      k: 0,
+      P: 1,
+      N: 3,
+      B: 3,
+      R: 5,
+      Q: 9,
+      K: 0,
     };
 
     let materialScore = 0;
     const board = this.game.board();
-    
+
     // Calculate material balance
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const piece = board[row][col];
         if (piece) {
-          materialScore += pieceValues[piece.type] * (piece.color === 'w' ? 1 : -1);
+          materialScore +=
+            pieceValues[piece.type] * (piece.color === 'w' ? 1 : -1);
         }
       }
     }
 
     // Add positional factors
     let positionalScore = 0;
-    
+
     // Center control bonus
     const centerSquares = ['d4', 'd5', 'e4', 'e5'];
     centerSquares.forEach(square => {
       const piece = this.game.get(square as any);
       if (piece) {
-        positionalScore += (piece.color === 'w' ? 0.3 : -0.3);
+        positionalScore += piece.color === 'w' ? 0.3 : -0.3;
       }
     });
 
     // Development bonus (knights and bishops not on starting squares)
     const developmentSquares = {
-      'w': ['b1', 'c1', 'f1', 'g1'],
-      'b': ['b8', 'c8', 'f8', 'g8']
+      w: ['b1', 'c1', 'f1', 'g1'],
+      b: ['b8', 'c8', 'f8', 'g8'],
     };
-    
+
     ['w', 'b'].forEach(color => {
       developmentSquares[color as 'w' | 'b'].forEach(square => {
         const piece = this.game.get(square as any);
         if (!piece || (piece.type !== 'n' && piece.type !== 'b')) {
-          positionalScore += (color === 'w' ? 0.2 : -0.2);
+          positionalScore += color === 'w' ? 0.2 : -0.2;
         }
       });
     });
 
     const totalScore = materialScore + positionalScore;
-    
+
     // Convert to percentage (50 = equal, >50 = white advantage, <50 = black advantage)
     // Clamp between reasonable bounds (-10 to +10 material advantage)
     const clampedScore = Math.max(-10, Math.min(10, totalScore));
-    return 50 + (clampedScore * 5); // Scale to 0-100 range
+    return 50 + clampedScore * 5; // Scale to 0-100 range
   }
 
   // Check if position is in check, checkmate, or stalemate

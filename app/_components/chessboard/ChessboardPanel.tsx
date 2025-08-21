@@ -1,25 +1,34 @@
-import React, { memo, useMemo, useState, useEffect } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Chessboard } from 'react-chessboard';
-import { ChessboardManager } from './chessboard';
 import EvalBar from '../ui/EvalBar';
+import { ChessboardManager } from './chessboard';
 
 interface Props {
   openingData: any;
 }
 
 const ChessboardPanel = memo(function ChessboardPanel({ openingData }: Props) {
-  const [chessboardManager, setChessboardManager] = useState<ChessboardManager | null>(null);
+  const [chessboardManager, setChessboardManager] =
+    useState<ChessboardManager | null>(null);
   const [currentPosition, setCurrentPosition] = useState<string>('');
   const [moves, setMoves] = useState<any[]>([]);
   const [evaluation, setEvaluation] = useState<number>(50);
-  const [positionStatus, setPositionStatus] = useState<'normal' | 'check' | 'checkmate' | 'stalemate'>('normal');
+  const [positionStatus, setPositionStatus] = useState<
+    'normal' | 'check' | 'checkmate' | 'stalemate'
+  >('normal');
 
-  const initialPosition = useMemo(() =>
-    openingData?.fen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [boardWidth, setBoardWidth] = useState<number>(380);
+
+  const initialPosition = useMemo(
+    () =>
+      openingData?.fen ||
+      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     [openingData?.fen]
   );
 
-  useEffect(() => {
+  // Initialize chessboard manager with useCallback for better performance
+  const initializeChessboard = useCallback(() => {
     const manager = new ChessboardManager(initialPosition);
     setChessboardManager(manager);
     setCurrentPosition(manager.getPosition());
@@ -28,21 +37,75 @@ const ChessboardPanel = memo(function ChessboardPanel({ openingData }: Props) {
     setPositionStatus(manager.getPositionStatus());
   }, [initialPosition]);
 
-  const handlePieceDrop = ({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string | null; }): boolean => {
-    if (!chessboardManager || !targetSquare) return false;
+  useEffect(() => {
+    initializeChessboard();
+  }, [initializeChessboard]);
 
-    const moveSuccessful = chessboardManager.makeMove(sourceSquare, targetSquare);
-    if (moveSuccessful) {
-      setCurrentPosition(chessboardManager.getPosition());
-      setMoves(chessboardManager.getMoves());
-      setEvaluation(chessboardManager.getPositionEvaluation());
-      setPositionStatus(chessboardManager.getPositionStatus());
-    }
+  // Optimized resize observer with debouncing
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
 
-    return moveSuccessful;
-  };
+    let timeoutId: NodeJS.Timeout;
+    const resize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const padding = 32; // Account for container padding
+        const max = 400; // Maximum board size
+        const min = 200; // Minimum board size
+        const containerWidth = el.clientWidth;
+        const availableWidth = containerWidth - padding - 100; // Leave space for EvalBar
+        const w = Math.max(min, Math.min(max, availableWidth));
+        setBoardWidth(w);
+      }, 100);
+    };
 
-  const handleReset = () => {
+    resize();
+
+    const ro = new ResizeObserver(() => resize());
+    ro.observe(el);
+    return () => {
+      clearTimeout(timeoutId);
+      ro.disconnect();
+    };
+  }, []);
+
+  const handlePieceDrop = useCallback(
+    ({
+      sourceSquare,
+      targetSquare,
+    }: {
+      sourceSquare: string;
+      targetSquare: string | null;
+    }): boolean => {
+      if (!chessboardManager || !targetSquare) return false;
+
+      const moveSuccessful = chessboardManager.makeMove(
+        sourceSquare,
+        targetSquare
+      );
+      if (moveSuccessful) {
+        setCurrentPosition(chessboardManager.getPosition());
+        setMoves(chessboardManager.getMoves());
+        setEvaluation(chessboardManager.getPositionEvaluation());
+        setPositionStatus(chessboardManager.getPositionStatus());
+      }
+
+      return moveSuccessful;
+    },
+    [chessboardManager]
+  );
+
+  // Keep evaluation and status in sync whenever position changes.
+  useEffect(() => {
+    if (!chessboardManager) return;
+    const evalValue = chessboardManager.getPositionEvaluation();
+    const statusValue = chessboardManager.getPositionStatus();
+    setEvaluation(evalValue);
+    setPositionStatus(statusValue);
+  }, [chessboardManager, currentPosition]);
+
+  const handleReset = useCallback(() => {
     if (chessboardManager) {
       chessboardManager.reset();
       setCurrentPosition(chessboardManager.getPosition());
@@ -50,92 +113,124 @@ const ChessboardPanel = memo(function ChessboardPanel({ openingData }: Props) {
       setEvaluation(chessboardManager.getPositionEvaluation());
       setPositionStatus(chessboardManager.getPositionStatus());
     }
-  };
+  }, [chessboardManager]);
 
-  const handleContentMoveClick = (moveIndex: number) => {
-    if (!chessboardManager) return;
+  const handleContentMoveClick = useCallback(
+    (moveIndex: number) => {
+      if (!chessboardManager) return;
 
-    const openingMoves = openingData?.openingMoves || [];
+      const openingMoves = openingData?.openingMoves || [];
 
-    if (moveIndex < openingMoves.length) {
-      chessboardManager.setToOpeningMove(openingMoves, moveIndex);
-    } else {
-      const userMoveIndex = moveIndex - openingMoves.length;
-      chessboardManager.revertToMove(userMoveIndex);
-    }
+      if (moveIndex < openingMoves.length) {
+        chessboardManager.setToOpeningMove(openingMoves, moveIndex);
+      } else {
+        const userMoveIndex = moveIndex - openingMoves.length;
+        chessboardManager.revertToMove(userMoveIndex);
+      }
 
-    setCurrentPosition(chessboardManager.getPosition());
-    setMoves(chessboardManager.getMoves());
-    setEvaluation(chessboardManager.getPositionEvaluation());
-    setPositionStatus(chessboardManager.getPositionStatus());
-  };
+      setCurrentPosition(chessboardManager.getPosition());
+      setMoves(chessboardManager.getMoves());
+      setEvaluation(chessboardManager.getPositionEvaluation());
+      setPositionStatus(chessboardManager.getPositionStatus());
+    },
+    [chessboardManager, openingData?.openingMoves]
+  );
 
   const contentMoves = useMemo(() => {
     const openingMoves = openingData?.openingMoves || [];
-    const userMoves = moves.map(move => move.san);
-    const allMoves = [...openingMoves, ...userMoves];
 
-    if (!allMoves.length) {
-      return <span className="bg-amber-50/10 p-2 rounded mx-2 text-gray-400">No Moves To Display</span>;
-    }
-
-    return allMoves.map((move: string, index: number) => {
-      const isOpeningMove = index < openingMoves.length;
+    if (!openingMoves.length && !moves.length) {
       return (
-        <span
-          key={`${move}-${index}`}
-          className={`px-2 py-1 rounded text-sm text-nowrap cursor-pointer transition-colors ${isOpeningMove
-            ? 'bg-white/20 hover:bg-white/30'
-            : 'bg-blue-500/30 border border-blue-400/50 hover:bg-blue-500/40'
-            }`}
-          onClick={() => handleContentMoveClick(index)}
-        >
-          {move}
+        <span className='bg-slate-700/50 p-2 rounded mx-2 text-slate-300'>
+          No Moves To Display
         </span>
       );
-    });
-  }, [openingData?.openingMoves, moves]);
+    }
+
+    const openingMoveButtons = openingMoves.map(
+      (move: string, index: number) => (
+        <button
+          key={`opening-${move}-${index}`}
+          className='px-3 py-2 rounded text-sm text-nowrap even:bg-black/10 odd:bg-white/10 hover:bg-blue-600/30 text-blue-200 hover:text-blue-100 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800 border border-blue-500/30 hover:border-blue-500/50'
+          onClick={() => handleContentMoveClick(index)}
+          aria-label={`Go to opening move ${index + 1}: ${move}`}
+        >
+          {move}
+        </button>
+      )
+    );
+
+    const userMoveButtons = moves.map((move: any, index: number) => (
+      <button
+        key={`user-${move.san}-${index}`}
+        className='px-3 py-2 rounded text-sm text-nowrap bg-orange-600/30 hover:bg-slate-600/50 text-slate-200 hover:text-slate-100 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:ring-offset-slate-800 border border-slate-500/30 hover:border-slate-500/50'
+        onClick={() =>
+          handleContentMoveClick(
+            index + (openingData?.openingMoves?.length || 0)
+          )
+        }
+        aria-label={`Go to user move ${index + 1}: ${move.san}`}
+      >
+        {move.san}
+      </button>
+    ));
+
+    return [...openingMoveButtons, ...userMoveButtons];
+  }, [openingData?.openingMoves, moves, handleContentMoveClick]);
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="flex flex-row gap-2">
-        <div className="w-full flex items-center gap-2 h-[2.5rem] flex-nowrap overflow-x-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-          {contentMoves}
-        </div>
+    <div
+      ref={containerRef}
+      className='flex flex-col items-center justify-center bg-slate-800/30 rounded-lg p-4 border border-slate-700/50'
+      role='region'
+      aria-label='Chess position explorer'
+    >
+      <div className='flex flex-row w-full gap-3 mb-4'>
         <button
           onClick={handleReset}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          className='px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-800 shadow-lg hover:shadow-xl'
+          aria-label='Reset chess position to starting position'
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
           Reset
         </button>
+        <div className='flex-1 flex flex-nowrap max-w-full ring-1 p-1 bg-slate-700/20 ring-slate-700/50 rounded-lg gap-2 items-center overflow-x-auto scrollbar-hide'>
+          {contentMoves}
+        </div>
       </div>
 
-      <div className="flex flex-row gap-2">
-        <EvalBar evaluation={evaluation} status={positionStatus} />
-        <Chessboard options={{
-          position: currentPosition,
-          onPieceDrop: handlePieceDrop,
-          allowDragging: true,
-          allowDrawingArrows: true,
-          boardStyle: {
-            width: "400px",
-            borderRadius: '8px',
-            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)'
-          },
-          darkSquareStyle: { backgroundColor: '#779952' },
-          lightSquareStyle: { backgroundColor: '#edeed1' },
-          dropSquareStyle: {
-            boxShadow: 'inset 0 0 1px 6px rgba(255,255,255,0.75)'
-          }
-        }} />
+      <div className='flex flex-row items-center justify-center gap-4 min-h-0'>
+        <div className='flex items-center justify-center min-h-0'>
+          <div
+            style={{ width: boardWidth, height: boardWidth }}
+            className='relative flex-shrink-0'
+            role='img'
+            aria-label={`Chess position: ${positionStatus === 'check' ? 'Check' : positionStatus === 'checkmate' ? 'Checkmate' : positionStatus === 'stalemate' ? 'Stalemate' : 'Normal position'}`}
+          >
+            <Chessboard
+              key={`chessboard-${currentPosition}`}
+              options={{
+                position: currentPosition,
+                onPieceDrop: handlePieceDrop,
+                boardOrientation: 'white',
+                boardStyle: {
+                  borderRadius: '8px',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                },
+                darkSquareStyle: { backgroundColor: '#475569' },
+                lightSquareStyle: { backgroundColor: '#94a3b8' },
+                dropSquareStyle: {
+                  backgroundColor: 'rgba(59, 130, 246, 0.3)',
+                  boxShadow: 'inset 0 0 1px 6px rgba(59, 130, 246, 0.5)',
+                },
+              }}
+            />
+          </div>
+        </div>
+
+        <EvalBar evaluation={evaluation} />
       </div>
     </div>
   );
 });
-
-ChessboardPanel.displayName = 'ChessboardPanel';
 
 export default ChessboardPanel;

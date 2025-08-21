@@ -5,11 +5,15 @@ interface DisplayTitleProps {
 }
 
 const DisplayTitle = memo(({ text }: DisplayTitleProps) => (
-  <span className="text-orange-400 text-4xl font-bold font-sans mb-2">
+  <h1
+    className='text-orange-400 text-6xl font-bold font-sans mb-4'
+    role='heading'
+    aria-level='1'
+  >
     {text}
-  </span>
+  </h1>
 ));
 
-DisplayTitle.displayName = "DisplayTitle";
+DisplayTitle.displayName = 'DisplayTitle';
 
 export default DisplayTitle;

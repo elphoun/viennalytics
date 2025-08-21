@@ -1,42 +1,43 @@
-import { memo, ReactNode } from "react";
+import { memo, ReactNode, isValidElement, cloneElement } from 'react';
 
-import { cn } from "../../utils";
+import { cn } from '../../utils';
 
 interface PromptOnHoverProps {
-    children: ReactNode;
-    prompt: ReactNode;
-    className?: string;
+  children: ReactNode;
+  prompt: ReactNode;
+  className?: string;
 }
 
-const PromptOnHover = memo(({
-    children,
-    prompt,
-    className = "",
-}: PromptOnHoverProps) => (
+const PromptOnHover = memo(
+  ({ children, prompt, className = '' }: PromptOnHoverProps) => (
     <>
-        {' '}
+      {' '}
+      <span
+        className={cn(
+          'indent-0 relative cursor-pointer transition-transform inline-flex items-center align-middle',
+          'hover:animate-wiggle text-orange-300 font-semibold group',
+          className
+        )}
+      >
+        {children}
         <span
-            className={cn(
-                "indent-0 relative cursor-pointer transition-transform inline-flex items-center align-middle",
-                "hover:animate-wiggle text-orange-300 font-semibold group",
-                className
-            )}
+          className={cn(
+            'absolute left-1/2 -translate-x-1/2 top-full mt-1 p-2 w-max text-xs font-semibold rounded',
+            'bg-orange-400 text-gray-900 opacity-0 group-hover:opacity-100 transition-opacity',
+            'pointer-events-none z-10 shadow-lg indent-0'
+          )}
         >
-            {children}
-            <span
-                className={cn(
-                    "absolute left-1/2 -translate-x-1/2 top-full mt-1 p-2 w-max text-xs font-semibold rounded",
-                    "bg-orange-400 text-gray-900 opacity-0 group-hover:opacity-100 transition-opacity",
-                    "pointer-events-none z-10 shadow-lg indent-0"
-                )}
-            >
-                {prompt}
-            </span>
+          {isValidElement(prompt) &&
+          (prompt as any).type &&
+          (prompt as any).type.displayName === 'Quote'
+            ? cloneElement(prompt as any, { inline: true })
+            : prompt}
         </span>
-        {' '}
+      </span>{' '}
     </>
-));
+  )
+);
 
-PromptOnHover.displayName = "PromptOnHover";
+PromptOnHover.displayName = 'PromptOnHover';
 
 export default PromptOnHover;
