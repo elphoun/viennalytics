@@ -1,9 +1,9 @@
-import { memo, ReactNode } from 'react';
-import { P } from '@/app/_components';
-import DataCard from '@/app/_components/text/DataCard';
-import Section from '@/app/_components/text/Section';
-import ImageDisplay from '@/app/_components/ui/ImageDisplay';
-import Table from '@/app/_components/ui/Table';
+import { memo, ReactNode } from "react";
+import { P } from "@/app/_components";
+import DataCard from "@/app/_components/text/DataCard";
+import Section from "@/app/_components/text/Section";
+import ImageDisplay from "@/app/_components/ui/ImageDisplay";
+import Table from "@/app/_components/ui/Table";
 
 interface KeyTerm {
   term: string;
@@ -13,7 +13,7 @@ interface KeyTerm {
 
 const keyTerms: KeyTerm[] = [
   {
-    term: 'Opening',
+    term: "Opening",
     definition: (
       <P indent={false}>
         The first phase of the chess game. It starts from the very first move
@@ -22,7 +22,7 @@ const keyTerms: KeyTerm[] = [
     ),
     content: (
       <ImageDisplay
-        src='/vienna.png'
+        src="/vienna.png"
         caption={
           <>
             The Vienna Game
@@ -36,7 +36,7 @@ const keyTerms: KeyTerm[] = [
     ),
   },
   {
-    term: 'Defense',
+    term: "Defense",
     definition: (
       <P indent={false}>
         Equivalent definition to the opening but from black’s perspective.
@@ -48,7 +48,7 @@ const keyTerms: KeyTerm[] = [
     ),
     content: (
       <ImageDisplay
-        src='/caro-kann.png'
+        src="/caro-kann.png"
         caption={
           <>
             Caro-Kann Defense
@@ -62,7 +62,7 @@ const keyTerms: KeyTerm[] = [
     ),
   },
   {
-    term: 'Variation',
+    term: "Variation",
     definition: (
       <P indent={false}>
         A specific branch/deviation in an opening after the core portion has
@@ -70,9 +70,9 @@ const keyTerms: KeyTerm[] = [
       </P>
     ),
     content: (
-      <div className='flex flex-row gap-10'>
+      <div className="flex flex-row gap-10">
         <ImageDisplay
-          src='/caro-kann-exchange.png'
+          src="/caro-kann-exchange.png"
           caption={
             <>
               Caro-Kann: Exchange Variation
@@ -84,7 +84,7 @@ const keyTerms: KeyTerm[] = [
           height={250}
         />
         <ImageDisplay
-          src='/caro-kann-advance.png'
+          src="/caro-kann-advance.png"
           caption={
             <>
               Caro-Kann: Advance Variation
@@ -99,7 +99,7 @@ const keyTerms: KeyTerm[] = [
     ),
   },
   {
-    term: 'ELO',
+    term: "ELO",
     definition: (
       <P indent={false}>
         A numerical rating of a chess player’s skill relative to other players.
@@ -109,9 +109,9 @@ const keyTerms: KeyTerm[] = [
     ),
   },
   {
-    term: 'FEN (Forsyth-Edwards Notation)',
+    term: "FEN (Forsyth-Edwards Notation)",
     definition: (
-      <div className='flex flex-col gap-4'>
+      <div className="flex flex-col gap-4">
         <P indent={false}>
           Used to describe a current chess position using a single line of text.
           It includes:
@@ -119,38 +119,38 @@ const keyTerms: KeyTerm[] = [
         <Table
           rows={[
             {
-              field: 'Board Position',
-              value: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR',
+              field: "Board Position",
+              value: "rnbqkbnr/pppp1ppp/8/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR",
             },
-            { field: 'Active Color', value: 'b' },
-            { field: 'Castling Rights', value: 'KQkq' },
-            { field: 'En Passant', value: '-' },
-            { field: 'Half-move Clock', value: '1' },
-            { field: 'Full-move Number', value: '2' },
+            { field: "Active Color", value: "b" },
+            { field: "Castling Rights", value: "KQkq" },
+            { field: "En Passant", value: "-" },
+            { field: "Half-move Clock", value: "1" },
+            { field: "Full-move Number", value: "2" },
           ]}
         />
       </div>
     ),
   },
   {
-    term: 'Evaluation',
+    term: "Evaluation",
     definition: (
-      <div className='flex flex-col gap-4'>
+      <div className="flex flex-col gap-4">
         <P indent={false}>
           A tool which calculates which side is favored in a match. Positive
           values indicate that white is winning, and negative values indicate
-          that black is winning. Evaluations are measured in <b>centipawns</b>{' '}
+          that black is winning. Evaluations are measured in <b>centipawns</b>{" "}
           (1 pawn = 100 centipawns). Below is a table containing all of the
           conversions for each piece.
         </P>
         <Table
           rows={[
-            { field: 'Pawn (♙)', value: '100' },
-            { field: 'Knight (♘)', value: '300' },
-            { field: 'Bishop (♗)', value: '300' },
-            { field: 'Rook (♖)', value: '500' },
-            { field: 'Queen (♕)', value: '900' },
-            { field: 'King (♔)', value: 'Infinite (Checkmate)' },
+            { field: "Pawn (♙)", value: "100" },
+            { field: "Knight (♘)", value: "300" },
+            { field: "Bishop (♗)", value: "300" },
+            { field: "Rook (♖)", value: "500" },
+            { field: "Queen (♕)", value: "900" },
+            { field: "King (♔)", value: "Infinite (Checkmate)" },
           ]}
         />
       </div>
@@ -159,13 +159,13 @@ const keyTerms: KeyTerm[] = [
 ];
 
 const KeyTermsSection = memo(() => (
-  <Section title='Key Terms' icon='📚'>
-    <div className='flex flex-col gap-4 '>
+  <Section title="Key Terms" icon="📚">
+    <div className="flex flex-col gap-4 ">
       {keyTerms.map(({ term, definition, content }: KeyTerm) => (
         <DataCard key={term} title={term}>
-          <div className='text-blue-200'>{definition}</div>
+          <div className="text-blue-200">{definition}</div>
           {content && (
-            <div className='flex items-center justify-center'>{content}</div>
+            <div className="flex items-center justify-center">{content}</div>
           )}
         </DataCard>
       ))}
@@ -173,6 +173,6 @@ const KeyTermsSection = memo(() => (
   </Section>
 ));
 
-KeyTermsSection.displayName = 'KeyTermsSection';
+KeyTermsSection.displayName = "KeyTermsSection";
 
 export default KeyTermsSection;

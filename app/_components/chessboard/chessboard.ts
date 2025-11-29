@@ -1,4 +1,4 @@
-import { Chess } from 'chess.js';
+import { Chess, Square } from "chess.js";
 
 export interface ChessMove {
   from: string;
@@ -21,7 +21,7 @@ export class ChessboardManager {
 
   constructor(initialFen?: string) {
     this.initialPosition =
-      initialFen || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+      initialFen || "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     this.game = new Chess(this.initialPosition);
   }
 
@@ -135,7 +135,7 @@ export class ChessboardManager {
         const piece = board[row][col];
         if (piece) {
           materialScore +=
-            pieceValues[piece.type] * (piece.color === 'w' ? 1 : -1);
+            pieceValues[piece.type] * (piece.color === "w" ? 1 : -1);
         }
       }
     }
@@ -144,25 +144,25 @@ export class ChessboardManager {
     let positionalScore = 0;
 
     // Center control bonus
-    const centerSquares = ['d4', 'd5', 'e4', 'e5'];
-    centerSquares.forEach(square => {
-      const piece = this.game.get(square as any);
+    const centerSquares = ["d4", "d5", "e4", "e5"];
+    centerSquares.forEach((square) => {
+      const piece = this.game.get(square as Square);
       if (piece) {
-        positionalScore += piece.color === 'w' ? 0.3 : -0.3;
+        positionalScore += piece.color === "w" ? 0.3 : -0.3;
       }
     });
 
     // Development bonus (knights and bishops not on starting squares)
     const developmentSquares = {
-      w: ['b1', 'c1', 'f1', 'g1'],
-      b: ['b8', 'c8', 'f8', 'g8'],
+      w: ["b1", "c1", "f1", "g1"],
+      b: ["b8", "c8", "f8", "g8"],
     };
 
-    ['w', 'b'].forEach(color => {
-      developmentSquares[color as 'w' | 'b'].forEach(square => {
-        const piece = this.game.get(square as any);
-        if (!piece || (piece.type !== 'n' && piece.type !== 'b')) {
-          positionalScore += color === 'w' ? 0.2 : -0.2;
+    ["w", "b"].forEach((color) => {
+      developmentSquares[color as "w" | "b"].forEach((square) => {
+        const piece = this.game.get(square as Square);
+        if (!piece || (piece.type !== "n" && piece.type !== "b")) {
+          positionalScore += color === "w" ? 0.2 : -0.2;
         }
       });
     });
@@ -176,10 +176,10 @@ export class ChessboardManager {
   }
 
   // Check if position is in check, checkmate, or stalemate
-  getPositionStatus(): 'normal' | 'check' | 'checkmate' | 'stalemate' {
-    if (this.game.isCheckmate()) return 'checkmate';
-    if (this.game.isStalemate()) return 'stalemate';
-    if (this.game.inCheck()) return 'check';
-    return 'normal';
+  getPositionStatus(): "normal" | "check" | "checkmate" | "stalemate" {
+    if (this.game.isCheckmate()) return "checkmate";
+    if (this.game.isStalemate()) return "stalemate";
+    if (this.game.inCheck()) return "check";
+    return "normal";
   }
 }

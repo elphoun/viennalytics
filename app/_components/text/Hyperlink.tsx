@@ -1,4 +1,4 @@
-import { memo, ReactNode } from 'react';
+import { memo, ReactNode } from "react";
 
 interface HyperlinkProps {
   children: ReactNode;
@@ -8,14 +8,14 @@ interface HyperlinkProps {
 const Hyperlink = memo(({ children, link }: HyperlinkProps) => (
   <a
     href={link}
-    target='_blank'
-    className='underline text-orange-400 align-middle indent-0 inline-block'
-    rel='noreferrer'
+    target="_blank"
+    className="underline text-orange-400 align-middle indent-0 inline-block"
+    rel="noreferrer"
   >
     {children}
   </a>
 ));
 
-Hyperlink.displayName = 'Hyperlink';
+Hyperlink.displayName = "Hyperlink";
 
 export default Hyperlink;

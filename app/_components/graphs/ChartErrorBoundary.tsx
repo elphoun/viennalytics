@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Component, ErrorInfo, ReactNode } from 'react';
-import { ChartError } from './chartUtils';
+import { Component, ErrorInfo, ReactNode } from "react";
+import { ChartError } from "./chartUtils";
 
 interface Props {
   children: ReactNode;
@@ -24,7 +24,7 @@ class ChartErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Chart Error Boundary caught an error:', error, errorInfo);
+    console.error("Chart Error Boundary caught an error:", error, errorInfo);
   }
 
   render() {
@@ -35,7 +35,7 @@ class ChartErrorBoundary extends Component<Props, State> {
 
       return (
         <ChartError
-          error={this.state.error || new Error('Unknown chart error')}
+          error={this.state.error || new Error("Unknown chart error")}
         />
       );
     }

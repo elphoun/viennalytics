@@ -1,14 +1,18 @@
-import { memo } from 'react';
+import { memo } from "react";
 
-const Page = memo(({ params }: { params: { openings: string } }) => {
-  return (
-    <div className='p-4'>
-      <h1>Openings: {params.openings}</h1>
-      <pre>{JSON.stringify(params, null, 2)}</pre>
-    </div>
-  );
-});
+const Page = memo(
+  async ({ params }: { params: Promise<{ openings: string }> }) => {
+    const { openings } = await params;
 
-Page.displayName = 'OpeningsPage';
+    return (
+      <div className="p-4">
+        <h1>Openings: {openings}</h1>
+        <pre>{JSON.stringify({ openings }, null, 2)}</pre>
+      </div>
+    );
+  },
+);
+
+Page.displayName = "OpeningsPage";
 
 export default Page;

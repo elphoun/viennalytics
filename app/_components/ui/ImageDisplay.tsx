@@ -1,7 +1,7 @@
-import { memo, ReactNode } from 'react';
-import Image from 'next/image';
+import { memo, ReactNode } from "react";
+import Image from "next/image";
 
-import { cn } from '@/app/utils';
+import { cn } from "@/app/utils";
 
 interface ImageDisplayProps {
   src: string;
@@ -17,7 +17,7 @@ interface ImageDisplayProps {
 const ImageDisplay = memo(
   ({
     src,
-    alt = '',
+    alt = "",
     caption,
     className,
     imageClassName,
@@ -25,29 +25,28 @@ const ImageDisplay = memo(
     width,
     height,
   }: ImageDisplayProps) => (
-    <figure className={cn('flex flex-col items-center', className)}>
+    <figure className={cn("flex flex-col items-center", className)}>
       <Image
         src={src}
         alt={alt}
         width={width}
         height={height}
-        className={cn('rounded-lg shadow-lg', imageClassName)}
-        style={{ width: 'auto', height: 'auto' }}
+        className={cn("rounded-lg shadow-lg", imageClassName)}
       />
       {caption && (
         <figcaption
           className={cn(
-            'mt-3 text-base text-gray-300 text-center font-medium',
-            captionClassName
+            "mt-3 text-base text-gray-300 text-center font-medium",
+            captionClassName,
           )}
         >
           {caption}
         </figcaption>
       )}
     </figure>
-  )
+  ),
 );
 
-ImageDisplay.displayName = 'ImageDisplay';
+ImageDisplay.displayName = "ImageDisplay";
 
 export default ImageDisplay;

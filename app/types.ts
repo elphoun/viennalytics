@@ -4,7 +4,7 @@ interface Player {
   elo: number;
 }
 
-type Result = 'white' | 'black' | 'draw';
+type Result = "white" | "black" | "draw";
 
 interface PopularNextMove {
   eval: number;

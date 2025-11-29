@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import { cn } from '@/app/utils';
+import { memo } from "react";
+import { cn } from "@/app/utils";
 
 interface EvalBarProps {
   /**
@@ -13,25 +13,25 @@ interface EvalBarProps {
   /**
    * Position status for special display states
    */
-  status?: 'normal' | 'check' | 'checkmate' | 'stalemate';
+  status?: "normal" | "check" | "checkmate" | "stalemate";
 }
 
 const SET_DEFAULT_EVALUATION = 50;
 
-const EvalBar = memo(({ evaluation, status = 'normal' }: EvalBarProps) => {
+const EvalBar = memo(({ evaluation, status = "normal" }: EvalBarProps) => {
   // Handle special game states
   let displayEval = evaluation;
-  let displayText = '';
+  let displayText = "";
 
-  if (status === 'checkmate') {
+  if (status === "checkmate") {
     // Determine winner based on current evaluation trend
     displayEval = evaluation > 50 ? 100 : 0;
-    displayText = evaluation > 50 ? '1-0' : '0-1';
-  } else if (status === 'stalemate') {
+    displayText = evaluation > 50 ? "1-0" : "0-1";
+  } else if (status === "stalemate") {
     displayEval = 50;
-    displayText = '½-½';
-  } else if (status === 'check') {
-    displayText = 'CHECK';
+    displayText = "½-½";
+  } else if (status === "check") {
+    displayText = "CHECK";
   } else {
     // Convert evaluation to a more readable format
     const centipawns = (evaluation - 50) * 2; // Convert to rough centipawn equivalent
@@ -46,55 +46,55 @@ const EvalBar = memo(({ evaluation, status = 'normal' }: EvalBarProps) => {
 
   // Determine text color and background based on the position
   const isTextOnBlack = blackPercentage > 50;
-  const textColorClass = isTextOnBlack ? 'text-white' : 'text-black';
+  const textColorClass = isTextOnBlack ? "text-white" : "text-black";
 
   // Add special styling for game-ending states
-  const isGameOver = status === 'checkmate' || status === 'stalemate';
-  const isCheck = status === 'check';
+  const isGameOver = status === "checkmate" || status === "stalemate";
+  const isCheck = status === "check";
 
   return (
-    <div className='relative h-[400px] w-6 flex-shrink-0'>
+    <div className="relative h-[400px] w-6 flex-shrink-0">
       <div
         className={cn(
-          'h-full w-full flex flex-col overflow-hidden rounded-lg bg-slate-700 border border-slate-600',
-          isGameOver && 'ring-2 ring-yellow-400',
-          isCheck && 'ring-2 ring-red-400'
+          "h-full w-full flex flex-col overflow-hidden rounded-lg bg-slate-700 border border-slate-600",
+          isGameOver && "ring-2 ring-yellow-400",
+          isCheck && "ring-2 ring-red-400",
         )}
       >
         <div
           className={cn(
-            'w-full transition-all duration-300 ease-in-out',
-            status === 'checkmate' && evaluation < 50
-              ? 'bg-green-600'
-              : 'bg-slate-900'
+            "w-full transition-all duration-300 ease-in-out",
+            status === "checkmate" && evaluation < 50
+              ? "bg-green-600"
+              : "bg-slate-900",
           )}
           style={{ height: `${blackPercentage}%` }}
         />
         <div
           className={cn(
-            'w-full transition-all duration-300 ease-in-out',
-            status === 'checkmate' && evaluation > 50
-              ? 'bg-green-600'
-              : 'bg-slate-100'
+            "w-full transition-all duration-300 ease-in-out",
+            status === "checkmate" && evaluation > 50
+              ? "bg-green-600"
+              : "bg-slate-100",
           )}
           style={{ height: `${whitePercentage}%` }}
         />
       </div>
-      <div className='absolute inset-0 flex items-center justify-center'>
+      <div className="absolute inset-0 flex items-center justify-center">
         <span
           className={cn(
-            'font-bold text-xs pointer-events-none px-1 py-0.5 rounded bg-slate-600',
+            "font-bold text-xs pointer-events-none px-1 py-0.5 rounded bg-slate-600",
             textColorClass,
-            isGameOver && 'bg-yellow-400 text-black',
-            isCheck && 'bg-red-400 text-white'
+            isGameOver && "bg-yellow-400 text-black",
+            isCheck && "bg-red-400 text-white",
           )}
           style={{
             textShadow:
               !isGameOver && !isCheck
-                ? '1px 1px 2px rgba(0, 0, 0, 0.5)'
-                : 'none',
-            transform: 'rotate(-90deg)',
-            whiteSpace: 'nowrap',
+                ? "1px 1px 2px rgba(0, 0, 0, 0.5)"
+                : "none",
+            transform: "rotate(-90deg)",
+            whiteSpace: "nowrap",
           }}
         >
           {displayText}
@@ -104,6 +104,6 @@ const EvalBar = memo(({ evaluation, status = 'normal' }: EvalBarProps) => {
   );
 });
 
-EvalBar.displayName = 'EvalBar';
+EvalBar.displayName = "EvalBar";
 
 export default EvalBar;
