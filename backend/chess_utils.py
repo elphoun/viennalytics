@@ -58,8 +58,6 @@ def move_sequence_to_fen(move_sequence):
         return board.fen()
     except Exception:
         return None
-
-
 def safe_get_eval(fen):
     """Safely get evaluation for a FEN position."""
     from stockfish_engine import get_stockfish_eval
